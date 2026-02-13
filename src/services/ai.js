@@ -20,7 +20,6 @@ INSTRUÇÕES:
 
 export const getAIResponse = async (messages) => {
     try {
-        // Detect if we are on Vercel or local
         const isVercel = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
         const API_ENDPOINT = isVercel ? '/api/chat' : API_URL;
 
@@ -33,7 +32,6 @@ export const getAIResponse = async (messages) => {
             method: 'POST',
             headers: headers,
             body: JSON.stringify({
-                model: "llama-3.3-70b-versatile",
                 messages: [
                     { role: "system", content: SYSTEM_PROMPT },
                     ...messages
@@ -47,8 +45,8 @@ export const getAIResponse = async (messages) => {
         }
 
         const data = await response.json();
-        // Handle both direct Groq response and our local API response format
-        return isVercel ? data.choices[0].message.content : data.choices[0].message.content;
+        // The SDK format returns choices[0].message.content or we handle the direct text
+        return data.choices[0].message.content;
     } catch (error) {
         console.error("Error fetching AI response:", error);
         return "Desculpe, tive um pequeno problema técnico. Posso te ajudar com algo mais ou você prefere falar direto no WhatsApp?";
