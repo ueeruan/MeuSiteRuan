@@ -9,9 +9,6 @@ const FloatingChat = () => {
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const widgetRef = useRef(null);
 
-    // Don't show if already on services page (where the chat is)
-    if (location.pathname === '/servicos') return null;
-
     useEffect(() => {
         const handleMouseMove = (e) => {
             setMousePos({ x: e.clientX, y: e.clientY });
@@ -19,6 +16,9 @@ const FloatingChat = () => {
         window.addEventListener('mousemove', handleMouseMove);
         return () => window.removeEventListener('mousemove', handleMouseMove);
     }, []);
+
+    // Don't show if already on services page (where the chat is)
+    if (location.pathname === '/servicos') return null;
 
     const Eye = () => {
         const eyeRef = useRef(null);
