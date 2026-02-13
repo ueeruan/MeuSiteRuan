@@ -1,36 +1,45 @@
-import { groq } from '@ai-sdk/groq';
-import { generateText } from 'ai';
-
 export const config = {
-    runtime: 'edge', // Using Edge Runtime for maximum speed like the template
+    runtime: 'nodejs', // Whisper requires standard Node.js for FormData handling
 };
 
-export default async function handler(req) {
+export default async function handler(req, res) {
     if (req.method !== 'POST') {
-        return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        const { messages } = await req.json();
         const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY;
 
-        if (!GROQ_API_KEY) {
-            return new Response(JSON.stringify({ error: 'Missing API Key' }), { status: 500 });
+        // This endpoint will handle both Chat and Transcriptions to centralize key management
+        // and resolve CORS/auth issues on Vercel
+
+        const { type } = req.body;
+
+        if (type === 'transcription') {
+            // Forwarding transcription is tricky in serverless without local temp files
+            // For now, let's focus on fixing the Chat and verify the key
+            return res.status(400).json({ error: 'Use direct transcription with proper key' });
         }
 
-        // Using the Vercel AI SDK logic
-        const { text } = await generateText({
-            model: groq('llama-3.3-70b-versatile'),
-            messages: messages,
-            apiKey: GROQ_API_KEY,
+        const { messages } = req.body;
+
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${GROQ_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                messages: messages,
+                temperature: 0.7,
+                max_tokens: 1024
+            })
         });
 
-        return new Response(JSON.stringify({ choices: [{ message: { content: text } }] }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        const data = await response.json();
+        return res.status(200).json(data);
     } catch (error) {
-        console.error("SDK Error:", error);
-        return new Response(JSON.stringify({ error: 'Internal Server Error', details: error.message }), { status: 500 });
+        return res.status(500).json({ error: error.message });
     }
 }
