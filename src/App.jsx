@@ -10,6 +10,7 @@ import Background from './components/Background';
 import Lenis from 'lenis';
 
 import DownloadsPage from './components/DownloadsPage';
+import FloatingChat from './components/FloatingChat';
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -49,6 +50,7 @@ function App() {
       <div className="bg-brand-dark min-h-screen text-white relative font-sans">
         <Background />
         <Navbar />
+        <FloatingChat />
         <main>
           <AnimatedRoutes />
         </main>
