@@ -1,10 +1,23 @@
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Hero from './Hero';
 import About from './About';
 
 import Footer from './Footer';
 
+// Global flag to track if sound has played in this session (reset on reload)
+let welcomeSoundPlayed = false;
+
 const Home = () => {
+    useEffect(() => {
+        if (!welcomeSoundPlayed) {
+            const audio = new Audio('/sounds/welcome.mp3');
+            audio.volume = 0.5;
+            audio.play().catch(e => console.log("Audio play failed (user interaction needed or file missing)", e));
+            welcomeSoundPlayed = true;
+        }
+    }, []);
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
