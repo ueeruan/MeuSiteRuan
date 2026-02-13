@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAIResponse, transcribeAudio, AE_EXPERT_PROMPT } from '../services/ai';
-import { Send, MessageSquare, CheckCircle, Sparkles, Mic, Square, Play, Pause, Trash2, Terminal, Code } from 'lucide-react';
+import { Send, MessageSquare, CheckCircle, Sparkles, Mic, Square, Play, Pause, Trash2, Terminal, Code, Download, Package } from 'lucide-react';
+import JSZip from 'jszip';
 
 const FalaAI = () => {
     const [messages, setMessages] = useState([]);
@@ -12,6 +13,7 @@ const FalaAI = () => {
     const [audioPreviewUrl, setAudioPreviewUrl] = useState(null);
     const [recordedBlob, setRecordedBlob] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [extensionData, setExtensionData] = useState(null);
     const chatEndRef = useRef(null);
     const mediaRecorderRef = useRef(null);
     const audioChunksRef = useRef([]);
@@ -27,11 +29,11 @@ const FalaAI = () => {
         }
     }, []);
 
-    useEffect(scrollToBottom, [messages, isTyping]);
+    useEffect(scrollToBottom, [messages, isTyping, extensionData]);
 
     const initChat = async () => {
         setIsTyping(true);
-        const welcome = "Fala aí! Sou o especialista em After Effects e automação. Tenho uma ideia de extensão ou ferramenta para o AE? Me conta como ela deveria funcionar que eu analiso a viabilidade técnica pra você! 💻📽️";
+        const welcome = "Fala aí! Sou o especialista em After Effects e automação. Quer validar uma ideia ou **CRIAR UMA EXTENSÃO** agora mesmo? Me conta o que você precisa! 💻📽️";
         setTimeout(() => {
             setMessages([{ role: 'assistant', content: welcome, id: Date.now() }]);
             setIsTyping(false);
@@ -103,6 +105,22 @@ const FalaAI = () => {
         setIsPlaying(!isPlaying);
     };
 
+    const downloadExtension = async () => {
+        if (!extensionData) return;
+        const zip = new JSZip();
+        extensionData.files.forEach(file => {
+            zip.file(file.path, file.content);
+        });
+        const blob = await zip.generateAsync({ type: "blob" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${extensionData.name.replace(/\s+/g, '_') || "extension"}.zip`;
+        a.click();
+        URL.revokeObjectURL(url);
+        setMessages(prev => [...prev, { role: 'assistant', content: "Download iniciado! Instale via ZXP Installer ou coloque na pasta CEP/extensions. 🚀", id: Date.now() }]);
+    };
+
     const handleSend = async (text) => {
         if (!text.trim() || isFinished) return;
         const val = text.trim();
@@ -141,7 +159,29 @@ const FalaAI = () => {
 
         try {
             const aiResponse = await getAIResponse(historyForAI, AE_EXPERT_PROMPT);
-            setMessages(prev => [...prev, { role: 'assistant', content: aiResponse, id: Date.now() }]);
+
+            // Check for Extension JSON
+            const jsonMatch = aiResponse.match(/<EXTENSION_JSON>([\s\S]*?)<\/EXTENSION_JSON>/);
+
+            if (jsonMatch && jsonMatch[1]) {
+                try {
+                    const jsonContent = JSON.parse(jsonMatch[1]);
+                    setExtensionData(jsonContent);
+                    const cleanResponse = aiResponse.replace(/<EXTENSION_JSON>[\s\S]*?<\/EXTENSION_JSON>/, '').trim();
+                    setMessages(prev => [...prev, {
+                        role: 'assistant',
+                        content: cleanResponse,
+                        id: Date.now(),
+                        hasDownload: true
+                    }]);
+                } catch (e) {
+                    console.error("JSON Parse Error", e);
+                    setMessages(prev => [...prev, { role: 'assistant', content: aiResponse, id: Date.now() }]);
+                }
+            } else {
+                setMessages(prev => [...prev, { role: 'assistant', content: aiResponse, id: Date.now() }]);
+            }
+
         } catch (err) {
             setMessages(prev => [...prev, { role: 'assistant', content: "Erro de conexão técnico. Tente novamente.", id: Date.now() }]);
         } finally {
@@ -183,7 +223,7 @@ const FalaAI = () => {
                             key={msg.id}
                             initial={{ opacity: 0, y: 15, scale: 0.9 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
-                            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                            className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
                         >
                             <div className={`max-w-[85%] p-4 rounded-2xl text-[13px] leading-relaxed shadow-lg ${msg.role === 'user'
                                 ? 'bg-blue-600 text-white font-bold rounded-tr-none'
@@ -191,6 +231,26 @@ const FalaAI = () => {
                             >
                                 {msg.content}
                             </div>
+
+                            {msg.hasDownload && extensionData && (
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="mt-2"
+                                >
+                                    <button
+                                        onClick={downloadExtension}
+                                        className="flex items-center gap-3 px-6 py-3 bg-blue-500 text-white rounded-xl shadow-blue-glow hover:scale-105 transition-all group"
+                                    >
+                                        <Package size={18} />
+                                        <div className="text-left">
+                                            <div className="text-[10px] uppercase font-black tracking-widest opacity-80">Extensão Pronta</div>
+                                            <div className="text-xs font-bold">Baixar {extensionData.name}.zip</div>
+                                        </div>
+                                        <Download size={16} className="ml-2 group-hover:translate-y-1 transition-transform" />
+                                    </button>
+                                </motion.div>
+                            )}
                         </motion.div>
                     ))}
                     {isTyping && (
