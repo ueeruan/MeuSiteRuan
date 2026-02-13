@@ -43,7 +43,7 @@ const VideoCard = ({ project }) => {
         const videoId = urlObj.pathname.split('/').pop();
         // Desktop: clean look (controls=0). Mobile: allow manual playback (controls=1).
         const controls = isMobile ? 1 : 0;
-        return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=${controls}&loop=1&playlist=${videoId}&playsinline=1&rel=0&modestbranding=1`;
+        return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&controls=${controls}&loop=1&playlist=${videoId}&playsinline=1&rel=0&modestbranding=1`;
     };
 
     return (
@@ -68,6 +68,7 @@ const VideoCard = ({ project }) => {
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
+                        loading="lazy"
                     ></iframe>
 
                     {/* Gradient Overlays */}
