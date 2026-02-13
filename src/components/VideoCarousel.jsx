@@ -90,7 +90,7 @@ const VideoCarousel = ({ projects }) => {
                 </AnimatePresence>
 
                 {/* Navigation Arrows */}
-                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none px-4 md:-mx-16 lg:-mx-24">
+                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none px-4 md:-mx-16 lg:-mx-24 z-20">
                     <motion.button
                         whileHover={{ scale: 1.1, x: -5 }}
                         whileTap={{ scale: 0.9 }}
