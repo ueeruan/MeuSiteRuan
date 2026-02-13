@@ -157,10 +157,19 @@ const Tools = () => {
 
                 {/* --- CREDITS --- */}
                 <RevealOnScroll>
-                    <div className="text-center py-12 border-t border-white/5">
+                    <div className="text-center py-12 border-t border-white/5 flex flex-col items-center gap-4">
                         <p className="text-white/20 text-xs font-mono tracking-widest uppercase">
                             Credits to <span className="text-brand-accent font-bold">FaxyEmpire</span>
                         </p>
+                        <a
+                            href="https://discord.gg/faxyempire"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#5865F2]/10 text-[#5865F2] hover:bg-[#5865F2] hover:text-white transition-all text-xs font-bold tracking-widest uppercase"
+                        >
+                            <Disc size={14} />
+                            <span>Join Discord</span>
+                        </a>
                     </div>
                 </RevealOnScroll>
 
