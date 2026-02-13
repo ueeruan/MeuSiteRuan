@@ -11,7 +11,7 @@ const RevealOnScroll = ({ children, delay = 0, width = "100%" }) => {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.05, margin: "0px 0px -50px 0px" }} // Triggers even earlier
-                transition={{ duration: 0.5, delay: delay, ease: "easeOut" }}
+                transition={{ duration: 0.3, delay: delay * 0.5, ease: "easeOut" }}
             >
                 {children}
             </motion.div>
