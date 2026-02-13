@@ -51,13 +51,16 @@ export const getAIResponse = async (messages) => {
     }
 };
 
-export const transcribeAudio = async (audioBlob, extension = 'm4a') => {
+export const transcribeAudio = async (audioBlob, extension = 'webm') => {
     try {
         const formData = new FormData();
-        formData.append('file', audioBlob, `recording.${extension}`);
+        // Ensure clean extension (remove codec info)
+        const cleanExt = extension.split(';')[0];
+        formData.append('file', audioBlob, `recording.${cleanExt}`);
         formData.append('model', 'whisper-large-v3-turbo');
         formData.append('response_format', 'json');
         formData.append('language', 'pt');
+        formData.append('prompt', 'Conversa sobre edição de vídeos, orçamentos, reels e motion graphics com o editor Ruan.');
 
         const response = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
             method: 'POST',

@@ -96,21 +96,31 @@ const ProposalChat = () => {
     };
 
     const handleSend = async (text) => {
-        if (!text.trim() || isTyping || isFinished) return;
+        if (!text.trim() || isFinished) return;
 
         const userMsg = { role: 'user', content: text, id: Date.now() };
-        const newMessages = [...messages, userMsg];
-        setMessages(newMessages);
+        setMessages(prev => [...prev, userMsg]);
         setInputValue('');
         setIsTyping(true);
 
-        const aiResponse = await getAIResponse(newMessages.map(m => ({
-            role: m.role,
-            content: m.content
-        })));
+        // Functional update to avoid stale messages in async calls
+        setMessages(prev => {
+            const historyForAI = prev.map(m => ({
+                role: m.role,
+                content: m.content
+            }));
 
-        setMessages(prev => [...prev, { role: 'assistant', content: aiResponse, id: Date.now() }]);
-        setIsTyping(false);
+            getAIResponse(historyForAI).then(aiResponse => {
+                setMessages(current => [...current, {
+                    role: 'assistant',
+                    content: aiResponse,
+                    id: Date.now()
+                }]);
+                setIsTyping(false);
+            });
+
+            return prev;
+        });
     };
 
     const generateWhatsAppLink = () => {
@@ -173,10 +183,15 @@ const ProposalChat = () => {
                             animate={{ opacity: 1, scale: 1 }}
                             className="flex justify-start"
                         >
-                            <div className="bg-white/5 border border-white/10 px-4 py-3 rounded-2xl rounded-tl-none flex gap-1.5 items-center">
-                                <div className="w-1.5 h-1.5 bg-brand-accent rounded-full animate-bounce [animation-duration:0.6s]" />
-                                <div className="w-1.5 h-1.5 bg-brand-accent/60 rounded-full animate-bounce [animation-duration:0.6s] [animation-delay:0.2s]" />
-                                <div className="w-1.5 h-1.5 bg-brand-accent/30 rounded-full animate-bounce [animation-duration:0.6s] [animation-delay:0.4s]" />
+                            <div className="bg-white/5 border border-white/10 px-4 py-3 rounded-2xl rounded-tl-none flex gap-3 items-center">
+                                <span className="text-[10px] text-brand-accent/60 font-bold uppercase tracking-widest">
+                                    {isRecording ? "Gravando..." : "Pensando..."}
+                                </span>
+                                <div className="flex gap-1">
+                                    <div className="w-1 h-1 bg-brand-accent rounded-full animate-bounce [animation-duration:0.6s]" />
+                                    <div className="w-1 h-1 bg-brand-accent/60 rounded-full animate-bounce [animation-duration:0.6s] [animation-delay:0.2s]" />
+                                    <div className="w-1 h-1 bg-brand-accent/30 rounded-full animate-bounce [animation-duration:0.6s] [animation-delay:0.4s]" />
+                                </div>
                             </div>
                         </motion.div>
                     )}
