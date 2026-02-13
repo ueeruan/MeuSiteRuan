@@ -11,6 +11,7 @@ import Lenis from 'lenis';
 
 import DownloadsPage from './components/DownloadsPage';
 import FalaAIPage from './components/FalaAIPage';
+import PortfolioPage from './components/PortfolioPage';
 import FloatingChat from './components/FloatingChat';
 
 const AnimatedRoutes = () => {
@@ -21,6 +22,7 @@ const AnimatedRoutes = () => {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Home />} />
         <Route path="/servicos" element={<ServicesPage />} />
+        <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/downloads" element={<DownloadsPage />} />
         <Route path="/fala-ai" element={<FalaAIPage />} />
         <Route path="/contato" element={<ContactPage />} />
