@@ -3,6 +3,46 @@ import { motion, useSpring, useMotionValue } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { MessageSquareText } from 'lucide-react';
 
+const Eye = ({ mouseX, mouseY }) => {
+    const eyeRef = useRef(null);
+    const pupilX = useSpring(0, { stiffness: 400, damping: 30 });
+    const pupilY = useSpring(0, { stiffness: 400, damping: 30 });
+
+    useEffect(() => {
+        const updateEyes = () => {
+            if (!eyeRef.current) return;
+            const rect = eyeRef.current.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            const dx = mouseX.get() - centerX;
+            const dy = mouseY.get() - centerY;
+            const angle = Math.atan2(dy, dx);
+            const distance = Math.min(5, Math.hypot(dx, dy) / 15);
+
+            pupilX.set(Math.cos(angle) * distance);
+            pupilY.set(Math.sin(angle) * distance);
+        };
+
+        const unsubX = mouseX.on("change", updateEyes);
+        const unsubY = mouseY.on("change", updateEyes);
+
+        return () => {
+            unsubX();
+            unsubY();
+        };
+    }, [mouseX, mouseY]);
+
+    return (
+        <div ref={eyeRef} className="w-2.5 h-2.5 bg-white rounded-full relative flex items-center justify-center border-[0.5px] border-black/10 shadow-inner">
+            <motion.div
+                style={{ x: pupilX, y: pupilY }}
+                className="w-1.5 h-1.5 bg-brand-dark rounded-full"
+            />
+        </div>
+    );
+};
+
 const FloatingChat = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -16,46 +56,13 @@ const FloatingChat = () => {
         };
         window.addEventListener('mousemove', handleMouseMove);
         return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, []);
+    }, [mouseX, mouseY]);
 
     // Don't show if already on services page (where the chat is)
     if (location.pathname === '/servicos') return null;
 
-    const Eye = () => {
-        const eyeRef = useRef(null);
-        const pupilX = useSpring(0, { stiffness: 400, damping: 30 });
-        const pupilY = useSpring(0, { stiffness: 400, damping: 30 });
-
-        useEffect(() => {
-            return mouseX.on("change", (latestX) => {
-                if (!eyeRef.current) return;
-                const rect = eyeRef.current.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-
-                const dx = latestX - centerX;
-                const dy = mouseY.get() - centerY;
-                const angle = Math.atan2(dy, dx);
-                const distance = Math.min(5, Math.hypot(dx, dy) / 15);
-
-                pupilX.set(Math.cos(angle) * distance);
-                pupilY.set(Math.sin(angle) * distance);
-            });
-        }, []);
-
-        return (
-            <div ref={eyeRef} className="w-2.5 h-2.5 bg-white rounded-full relative flex items-center justify-center border-[0.5px] border-black/10">
-                <motion.div
-                    style={{ x: pupilX, y: pupilY }}
-                    className="w-1.5 h-1.5 bg-brand-dark rounded-full"
-                />
-            </div>
-        );
-    };
-
     return (
         <motion.div
-            ref={widgetRef}
             initial={{ opacity: 0, scale: 0, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             whileHover={{ scale: 1.1 }}
@@ -79,8 +86,8 @@ const FloatingChat = () => {
 
                 {/* Eyes Container */}
                 <div className="flex gap-2 relative z-10">
-                    <Eye />
-                    <Eye />
+                    <Eye mouseX={mouseX} mouseY={mouseY} />
+                    <Eye mouseX={mouseX} mouseY={mouseY} />
                 </div>
 
                 {/* Mouth/Icon */}
