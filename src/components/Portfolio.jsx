@@ -54,12 +54,12 @@ const projects = [
 
 const Portfolio = () => {
     return (
-        <section className="py-32 bg-transparent overflow-hidden" id="portfolio">
+        <section className="py-20 bg-transparent overflow-hidden" id="portfolio">
             <div className="container mx-auto px-4">
                 <RevealOnScroll>
-                    <div className="flex flex-col items-center mb-12">
+                    <div className="flex flex-col items-center mb-10">
                         <span className="text-brand-accent font-bold tracking-[0.4em] uppercase text-[10px] mb-4">Portfolio</span>
-                        <h2 className="text-5xl md:text-7xl font-heading text-center tracking-tighter">
+                        <h2 className="text-4xl md:text-5xl font-heading text-center tracking-tighter">
                             TRABALHOS <span className="text-brand-accent">SELECIONADOS</span>
                         </h2>
                     </div>

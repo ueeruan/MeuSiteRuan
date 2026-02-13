@@ -23,7 +23,7 @@ const Hero = () => {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 1.2, ease: "easeOut" }}
-                        className="text-[12vw] md:text-[8rem] font-heading leading-none text-white mb-8 select-none"
+                        className="text-[12vw] md:text-[6rem] font-heading leading-none text-white mb-8 select-none"
                     >
                         RUANZI<span className="title-gradient">TWO</span>
                     </motion.h1>

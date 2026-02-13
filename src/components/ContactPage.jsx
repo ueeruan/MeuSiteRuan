@@ -9,12 +9,12 @@ const ContactItem = ({ href, icon: Icon, label, tag, color, subtext }) => (
         target="_blank"
         rel="noopener noreferrer"
         whileHover={{ y: -8, scale: 1.02 }}
-        className="glass-panel p-10 rounded-[3rem] group border-brand-accent/5 hover:border-brand-accent/30 transition-all duration-700 flex flex-col items-center text-center relative overflow-hidden"
+        className="glass-panel p-8 rounded-[2.5rem] group border-brand-accent/5 hover:border-brand-accent/30 transition-all duration-700 flex flex-col items-center text-center relative overflow-hidden"
     >
         <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-10 transition-opacity duration-700`} />
 
-        <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center text-white group-hover:bg-brand-accent group-hover:text-brand-dark transition-all duration-500 mb-6">
-            <Icon size={32} />
+        <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-white group-hover:bg-brand-accent group-hover:text-brand-dark transition-all duration-500 mb-6">
+            <Icon size={28} />
         </div>
 
         <div className="space-y-2 relative z-10">
@@ -43,13 +43,13 @@ const ContactPage = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.5 }}
-            className="pt-32 min-h-screen flex flex-col"
+            className="pt-24 min-h-screen flex flex-col"
         >
             <div className="container mx-auto px-6 flex-grow">
-                <div className="max-w-4xl mx-auto text-center mb-24">
+                <div className="max-w-4xl mx-auto text-center mb-16">
                     <RevealOnScroll>
                         <span className="text-brand-accent font-bold tracking-[0.4em] uppercase text-[10px] mb-4 block">Networking</span>
-                        <h2 className="text-5xl md:text-8xl font-heading tracking-tighter mb-12">
+                        <h2 className="text-4xl md:text-5xl font-heading tracking-tighter mb-10">
                             VAMOS <span className="text-brand-accent italic">CONVERSAR?</span>
                         </h2>
                     </RevealOnScroll>
@@ -82,7 +82,7 @@ const ContactPage = () => {
                     </div>
 
                     <RevealOnScroll delay={0.3}>
-                        <div className="mt-24 grid md:grid-cols-2 gap-12 text-left border-t border-white/5 pt-12">
+                        <div className="mt-16 grid md:grid-cols-2 gap-10 text-left border-t border-white/5 pt-12">
                             <div className="flex items-start gap-6">
                                 <div className="p-4 bg-white/5 rounded-2xl text-brand-accent">
                                     <Clock size={24} />

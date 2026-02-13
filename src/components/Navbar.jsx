@@ -30,16 +30,16 @@ const Navbar = () => {
     }, [location]);
 
     return (
-        <nav className="fixed top-0 left-0 w-full z-[100] px-6 py-6 transition-all duration-500">
-            <div className={`max-w-6xl mx-auto flex items-center justify-between px-8 py-4 rounded-full transition-all duration-500 ${scrolled || location.pathname !== '/' ? 'glass-panel !bg-brand-surface/80 emerald-glow border-brand-accent/20 px-10' : 'bg-transparent border border-white/5'}`}>
+        <nav className="fixed top-0 left-0 w-full z-[100] px-4 py-4 transition-all duration-500">
+            <div className={`max-w-6xl mx-auto flex items-center justify-between px-6 py-3 rounded-full transition-all duration-500 ${scrolled || location.pathname !== '/' ? 'glass-panel !bg-brand-surface/80 emerald-glow border-brand-accent/20 px-8' : 'bg-transparent border border-white/5'}`}>
                 {/* Logo */}
                 <NavLink to="/" className="group flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-brand-accent flex items-center justify-center text-brand-dark font-heading text-xl">R</div>
-                    <span className="font-heading text-lg tracking-widest hidden sm:block">RUANZI<span className="text-brand-accent">TWO</span></span>
+                    <div className="w-7 h-7 rounded-lg bg-brand-accent flex items-center justify-center text-brand-dark font-heading text-lg">R</div>
+                    <span className="font-heading text-base tracking-widest hidden sm:block">RUANZI<span className="text-brand-accent">TWO</span></span>
                 </NavLink>
 
                 {/* Desktop Menu */}
-                <div className="hidden md:flex items-center gap-8">
+                <div className="hidden md:flex items-center gap-6">
                     {navLinks.map((link) => (
                         <NavLink
                             key={link.name}
@@ -57,7 +57,7 @@ const Navbar = () => {
 
                     <NavLink
                         to="/servicos"
-                        className="px-6 py-2 rounded-full border border-brand-accent text-brand-accent text-[10px] font-black uppercase tracking-widest hover:bg-brand-accent hover:text-brand-dark transition-all duration-300"
+                        className="px-5 py-2 rounded-full border border-brand-accent text-brand-accent text-[10px] font-black uppercase tracking-widest hover:bg-brand-accent hover:text-brand-dark transition-all duration-300"
                     >
                         Promoção
                     </NavLink>

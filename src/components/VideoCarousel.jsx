@@ -95,23 +95,23 @@ const VideoCarousel = ({ projects }) => {
                         whileHover={{ scale: 1.1, x: -5 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={prevSlide}
-                        className="w-14 h-14 rounded-2xl glass-panel flex items-center justify-center text-white hover:text-brand-accent hover:border-brand-accent/50 transition-all pointer-events-auto shadow-2xl emerald-glow"
+                        className="w-12 h-12 rounded-xl glass-panel flex items-center justify-center text-white hover:text-brand-accent hover:border-brand-accent/50 transition-all pointer-events-auto shadow-2xl emerald-glow"
                     >
-                        <ChevronLeft size={32} />
+                        <ChevronLeft size={24} />
                     </motion.button>
                     <motion.button
                         whileHover={{ scale: 1.1, x: 5 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={nextSlide}
-                        className="w-14 h-14 rounded-2xl glass-panel flex items-center justify-center text-white hover:text-brand-accent hover:border-brand-accent/50 transition-all pointer-events-auto shadow-2xl emerald-glow"
+                        className="w-12 h-12 rounded-xl glass-panel flex items-center justify-center text-white hover:text-brand-accent hover:border-brand-accent/50 transition-all pointer-events-auto shadow-2xl emerald-glow"
                     >
-                        <ChevronRight size={32} />
+                        <ChevronRight size={24} />
                     </motion.button>
                 </div>
             </div>
 
             {/* Indicators */}
-            <div className="flex justify-center gap-3 mt-12">
+            <div className="flex justify-center gap-3 mt-8">
                 {projects.map((_, index) => (
                     <button
                         key={index}

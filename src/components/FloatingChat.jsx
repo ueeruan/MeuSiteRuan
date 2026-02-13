@@ -68,7 +68,7 @@ const FloatingChat = () => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate('/servicos')}
-            className="fixed top-8 right-8 z-[150] cursor-pointer group"
+            className="fixed bottom-8 right-8 z-[200] cursor-pointer group"
         >
             {/* Tooltip */}
             <motion.div
@@ -80,7 +80,7 @@ const FloatingChat = () => {
             </motion.div>
 
             {/* Character Body */}
-            <div className="w-16 h-16 glass-panel rounded-2xl flex flex-col items-center justify-center gap-2 border-brand-accent/30 shadow-emerald-glow group-hover:border-brand-accent transition-colors duration-500 overflow-hidden relative">
+            <div className="w-14 h-14 glass-panel rounded-2xl flex flex-col items-center justify-center gap-1.5 border-brand-accent/30 shadow-emerald-glow group-hover:border-brand-accent transition-colors duration-500 overflow-hidden relative">
                 {/* Background Glow */}
                 <div className="absolute inset-0 bg-brand-accent/5 group-hover:bg-brand-accent/20 transition-colors" />
 

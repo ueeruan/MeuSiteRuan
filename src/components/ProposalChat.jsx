@@ -80,7 +80,7 @@ _Enviado através do site RuanziTwo_`;
     };
 
     return (
-        <div className="max-w-xl mx-auto glass-panel rounded-[2.5rem] overflow-hidden flex flex-col h-[600px] border-brand-accent/10 shadow-emerald-glow">
+        <div className="max-w-xl mx-auto glass-panel rounded-[2rem] overflow-hidden flex flex-col h-[520px] border-brand-accent/10 shadow-emerald-glow">
             {/* Header */}
             <div className="p-6 border-b border-white/5 bg-white/5 flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-brand-accent flex items-center justify-center text-brand-dark">
@@ -155,7 +155,7 @@ _Enviado através do site RuanziTwo_`;
             </div>
 
             {/* Input Area */}
-            <form onSubmit={handleSend} className="p-6 bg-black/40 border-t border-white/5">
+            <form onSubmit={handleSend} className="p-4 bg-black/40 border-t border-white/5">
                 <div className="relative flex items-center">
                     <input
                         type="text"
@@ -163,7 +163,7 @@ _Enviado através do site RuanziTwo_`;
                         onChange={(e) => setInputValue(e.target.value)}
                         placeholder={currentStep === QUESTIONS.length ? "Conversa encerrada" : "Digite sua mensagem..."}
                         disabled={currentStep === QUESTIONS.length || isTyping}
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-6 pr-14 text-sm focus:outline-none focus:border-brand-accent/50 transition-colors disabled:opacity-50"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-5 pr-14 text-sm focus:outline-none focus:border-brand-accent/50 transition-colors disabled:opacity-50"
                     />
                     <button
                         type="submit"

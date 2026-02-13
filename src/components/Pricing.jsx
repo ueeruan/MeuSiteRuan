@@ -4,14 +4,14 @@ import { Check, Sparkles } from 'lucide-react';
 
 const Pricing = () => {
     return (
-        <section className="py-32 bg-transparent relative" id="pricing">
+        <section className="py-20 bg-transparent relative" id="pricing">
             <div className="container mx-auto px-4 relative z-10">
                 <RevealOnScroll>
-                    <div className="max-w-4xl mx-auto glass-panel rounded-[3.5rem] p-0.5 relative group overflow-hidden border-brand-accent/20">
+                    <div className="max-w-4xl mx-auto glass-panel rounded-[3rem] p-0.5 relative group overflow-hidden border-brand-accent/20">
                         {/* Animated Border/Glow */}
                         <div className="absolute inset-0 bg-gradient-to-br from-brand-accent/20 via-transparent to-brand-accent/5 opacity-50" />
 
-                        <div className="bg-brand-surface/90 backdrop-blur-3xl rounded-[3.4rem] p-12 md:p-20 text-center relative overflow-hidden">
+                        <div className="bg-brand-surface/90 backdrop-blur-3xl rounded-[2.9rem] p-10 md:p-14 text-center relative overflow-hidden">
                             {/* Decorative Background Symbol */}
                             <div className="absolute -top-20 -right-20 w-64 h-64 bg-brand-accent/5 rounded-full blur-[100px] pointer-events-none" />
 
@@ -24,7 +24,7 @@ const Pricing = () => {
                                 Promoção de Lançamento
                             </motion.div>
 
-                            <h2 className="text-5xl md:text-8xl font-heading mb-8 tracking-tighter leading-none">
+                            <h2 className="text-4xl md:text-5xl font-heading mb-8 tracking-tighter leading-none">
                                 EDIÇÃO <span className="text-brand-accent">PREMIUM</span>
                             </h2>
 
@@ -41,9 +41,9 @@ const Pricing = () => {
                                 <div className="h-px w-12 bg-white/10 hidden md:block" />
 
                                 <div className="flex items-center gap-2">
-                                    <span className="text-brand-accent font-heading text-3xl self-start mt-2">R$</span>
-                                    <span className="text-8xl md:text-9xl font-heading text-white tracking-tighter">70</span>
-                                    <span className="text-white/40 font-heading text-2xl self-end mb-4">,00</span>
+                                    <span className="text-brand-accent font-heading text-2xl self-start mt-2">R$</span>
+                                    <span className="text-7xl md:text-8xl font-heading text-white tracking-tighter">70</span>
+                                    <span className="text-white/40 font-heading text-xl self-end mb-4">,00</span>
                                 </div>
                             </div>
 
@@ -71,7 +71,7 @@ const Pricing = () => {
                                 rel="noopener noreferrer"
                                 whileHover={{ scale: 1.02, y: -5 }}
                                 whileTap={{ scale: 0.98 }}
-                                className="inline-flex items-center justify-center gap-4 w-full md:w-auto px-16 py-8 bg-brand-accent text-brand-dark font-heading text-xl rounded-3xl shadow-2xl shadow-brand-accent/20 hover:shadow-brand-accent/40 transition-all"
+                                className="inline-flex items-center justify-center gap-4 w-full md:w-auto px-12 py-5 bg-brand-accent text-brand-dark font-heading text-base rounded-2xl shadow-2xl shadow-brand-accent/20 hover:shadow-brand-accent/40 transition-all"
                             >
                                 <span>RESERVAR VAGA</span>
                                 <motion.div
