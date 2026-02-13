@@ -1,21 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAIResponse, transcribeAudio, AE_EXPERT_PROMPT } from '../services/ai';
-import { Send, MessageSquare, CheckCircle, Sparkles, Mic, Square, Play, Pause, Trash2, Terminal, Code, Download, Package, FileCode, Monitor, ChevronRight, Image as ImageIcon } from 'lucide-react';
-import JSZip from 'jszip';
+import { Send, MessageSquare, CheckCircle, Sparkles, Mic, Square, Play, Pause, Trash2, Terminal, Code, Download, FileCode, Monitor } from 'lucide-react';
 
 // --- Simple Syntax Highlighter ---
-const CodeBlock = ({ code, language }) => {
-    // Basic syntax highlighting logic
+const CodeBlock = ({ code }) => {
     const highlight = (text) => {
         if (!text) return "";
         let html = text
             .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
             .replace(/(".*?")/g, '<span class="text-green-400">$1</span>')
-            .replace(/\b(const|let|var|function|return|if|else|for|while|import|export|from|async|await|try|catch|new|this|class)\b/g, '<span class="text-purple-400 font-bold">$1</span>')
+            .replace(/\b(app|var|const|let|function|return|if|else|for|while|try|catch|new|this)\b/g, '<span class="text-purple-400 font-bold">$1</span>')
             .replace(/\b(true|false|null|undefined)\b/g, '<span class="text-orange-400">$1</span>')
-            .replace(/\b(console|document|window|Math|JSON|navigator|alert)\b/g, '<span class="text-yellow-400">$1</span>')
-            .replace(/\/\/.*$/gm, '<span class="text-gray-500 italic">$&</span>'); // Comments
+            .replace(/\b(alert|confirm|prompt)\b/g, '<span class="text-yellow-400">$1</span>')
+            .replace(/\/\/.*$/gm, '<span class="text-gray-500 italic">$&</span>');
         return html;
     };
 
@@ -39,10 +37,8 @@ const FalaAI = () => {
     const [recordedBlob, setRecordedBlob] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
 
-    // IDE State
-    const [extensionData, setExtensionData] = useState(null);
-    const [activeFile, setActiveFile] = useState(null);
-    const [showPreview, setShowPreview] = useState(true); // Toggle between Code/Preview if needed
+    // Script State
+    const [scriptData, setScriptData] = useState(null);
 
     const chatEndRef = useRef(null);
     const mediaRecorderRef = useRef(null);
@@ -61,23 +57,16 @@ const FalaAI = () => {
 
     useEffect(scrollToBottom, [messages, isTyping]);
 
-    // Set initial active file when extension data loads
-    useEffect(() => {
-        if (extensionData && extensionData.files && extensionData.files.length > 0) {
-            setActiveFile(extensionData.files[0]);
-        }
-    }, [extensionData]);
-
     const initChat = async () => {
         setIsTyping(true);
-        const welcome = "Dev Mode Ativado. 💻\nSou seu **Engenheiro de Extensões**. Posso criar painéis CEP, scripts JSX ou tirar dúvidas de CSS/UI.\n\nO que vamos codar hoje?";
+        const welcome = "Script Engine Ativado. 📜\nSou seu **Desenvolvedor de Scripts (.jsx)**. Posso automatizar tarefas no After Effects.\n\nQual automação você precisa hoje?";
         setTimeout(() => {
             setMessages([{ role: 'assistant', content: welcome, id: Date.now() }]);
             setIsTyping(false);
         }, 1000);
     };
 
-    // --- Audio Logic (Preserved) ---
+    // --- Audio Logic ---
     const startRecording = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
@@ -133,17 +122,13 @@ const FalaAI = () => {
     };
 
     // --- Core Logic ---
-    const downloadExtension = async () => {
-        if (!extensionData) return;
-        const zip = new JSZip();
-        extensionData.files.forEach(file => {
-            zip.file(file.path, file.content);
-        });
-        const blob = await zip.generateAsync({ type: "blob" });
+    const downloadScript = () => {
+        if (!scriptData) return;
+        const blob = new Blob([scriptData.content], { type: 'text/javascript' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `${extensionData.name.replace(/\s+/g, '_') || "extension"}.zip`;
+        a.download = `${scriptData.name.replace(/\s+/g, '_') || "script"}.jsx`;
         a.click();
         URL.revokeObjectURL(url);
     };
@@ -152,31 +137,6 @@ const FalaAI = () => {
         if (!text.trim() || isFinished) return;
         const val = text.trim();
         const userMsg = { role: 'user', content: val, id: Date.now() };
-
-        // Check for Consultancy Handoff
-        const lowerInput = val.toLowerCase();
-        const shouldFinalize =
-            lowerInput.includes('enviar para o juan') ||
-            lowerInput.includes('finalizar') ||
-            lowerInput.includes('falar com o juan');
-
-        if (shouldFinalize) {
-            setMessages(prev => [...prev, userMsg, {
-                role: 'assistant',
-                content: "Entendido! Gerando o briefing técnico e te encaminhando para o WhatsApp do Juan... 🚀👨‍💻",
-                id: Date.now() + 1
-            }]);
-            setInputValue('');
-            setIsTyping(false);
-            setTimeout(() => {
-                const phone = "5588996126717";
-                const history = [...messages, userMsg].map(m => `*${m.role === 'user' ? 'Ideia' : 'AI'}:* ${m.content}`).join('\n\n');
-                const message = `*Briefing Técnico (via FalaAI IDE)*\n\n${history}\n\n_Enviado pelo Agente_`;
-                window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-                setIsFinished(true);
-            }, 2500);
-            return;
-        }
 
         setMessages(prev => [...prev, userMsg]);
         setInputValue('');
@@ -187,14 +147,14 @@ const FalaAI = () => {
         try {
             const aiResponse = await getAIResponse(historyForAI, AE_EXPERT_PROMPT);
 
-            // Check for Extension JSON
-            const jsonMatch = aiResponse.match(/<EXTENSION_JSON>([\s\S]*?)<\/EXTENSION_JSON>/);
+            // Check for Script JSON
+            const jsonMatch = aiResponse.match(/<SCRIPT_JSON>([\s\S]*?)<\/SCRIPT_JSON>/);
 
             if (jsonMatch && jsonMatch[1]) {
                 try {
                     const jsonContent = JSON.parse(jsonMatch[1]);
-                    setExtensionData(jsonContent);
-                    const cleanResponse = aiResponse.replace(/<EXTENSION_JSON>[\s\S]*?<\/EXTENSION_JSON>/, '').trim();
+                    setScriptData(jsonContent);
+                    const cleanResponse = aiResponse.replace(/<SCRIPT_JSON>[\s\S]*?<\/SCRIPT_JSON>/, '').trim();
                     setMessages(prev => [...prev, {
                         role: 'assistant',
                         content: cleanResponse,
@@ -203,7 +163,7 @@ const FalaAI = () => {
                     }]);
                 } catch (e) {
                     console.error("JSON Parse Error", e);
-                    setMessages(prev => [...prev, { role: 'assistant', content: "Erro ao gerar código.", id: Date.now() }]);
+                    setMessages(prev => [...prev, { role: 'assistant', content: "Erro ao gerar script.", id: Date.now() }]);
                 }
             } else {
                 setMessages(prev => [...prev, { role: 'assistant', content: aiResponse, id: Date.now() }]);
@@ -226,12 +186,7 @@ const FalaAI = () => {
                         <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500">
                             <Terminal size={16} />
                         </div>
-                        <span className="text-xs font-bold tracking-widest text-white/80">CHAT LOG</span>
-                    </div>
-                    <div className="flex gap-2">
-                        <div className="w-2 h-2 rounded-full bg-red-500/50" />
-                        <div className="w-2 h-2 rounded-full bg-yellow-500/50" />
-                        <div className="w-2 h-2 rounded-full bg-green-500/50" />
+                        <span className="text-xs font-bold tracking-widest text-white/80">SCRIPT LOG</span>
                     </div>
                 </div>
 
@@ -248,17 +203,17 @@ const FalaAI = () => {
                                 <code dangerouslySetInnerHTML={{ __html: msg.content.replace(/\n/g, '<br/>') }} />
                             </div>
 
-                            {msg.hasDownload && extensionData && (
+                            {msg.hasDownload && scriptData && (
                                 <button
-                                    onClick={downloadExtension}
+                                    onClick={downloadScript}
                                     className="mt-2 text-[10px] flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
                                 >
-                                    <Package size={12} /> Baixar .ZIP
+                                    <FileCode size={12} /> Baixar .JSX
                                 </button>
                             )}
                         </motion.div>
                     ))}
-                    {isTyping && <div className="text-[10px] text-gray-500 animate-pulse pl-2">AI is coding...</div>}
+                    {isTyping && <div className="text-[10px] text-gray-500 animate-pulse pl-2">Compiling script...</div>}
                     <div ref={chatEndRef} />
                 </div>
 
@@ -281,7 +236,7 @@ const FalaAI = () => {
                                     type="text"
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e.target.value)}
-                                    placeholder="Comando..."
+                                    placeholder="Descreva o script..."
                                     className="flex-grow bg-[#161b22] border border-white/5 rounded-lg py-2.5 px-3 text-[12px] text-gray-300 focus:outline-none focus:border-blue-500/50 font-mono"
                                     disabled={isTyping || isRecording}
                                 />
@@ -295,53 +250,41 @@ const FalaAI = () => {
 
             {/* --- RIGHT PANEL: PREVIEW (65%) --- */}
             <div className="w-full lg:w-[65%] flex flex-col bg-[#0d1117] lg:h-full h-1/2 relative">
-                {!extensionData ? (
+                {!scriptData ? (
                     <div className="h-full flex flex-col items-center justify-center opacity-30">
                         <Monitor size={48} className="text-blue-500 mb-4" />
-                        <p className="text-white font-mono text-sm">AGUARDANDO PROJETO...</p>
+                        <p className="text-white font-mono text-sm">AGUARDANDO SCRIPT...</p>
                     </div>
                 ) : (
                     <>
-                        {/* File Tabs */}
-                        <div className="flex items-center overflow-x-auto border-b border-white/5 bg-[#010409]">
-                            {extensionData.files.map((file, idx) => (
-                                <button
-                                    key={idx}
-                                    onClick={() => setActiveFile(file)}
-                                    className={`px-4 py-3 flex items-center gap-2 text-[11px] font-mono border-r border-white/5 transition-colors whitespace-nowrap
-                                        ${activeFile?.path === file.path ? 'bg-[#0d1117] text-blue-400 border-t-2 border-t-blue-500' : 'text-gray-500 hover:text-gray-300 hover:bg-[#161b22]'}
-                                    `}
-                                >
-                                    <FileCode size={12} />
-                                    {file.path}
-                                </button>
-                            ))}
+                        {/* Header */}
+                        <div className="flex items-center px-4 py-3 border-b border-white/5 bg-[#010409]">
+                            <div className="flex items-center gap-2 text-[11px] font-mono text-blue-400">
+                                <FileCode size={14} />
+                                {scriptData.name || 'script.jsx'}
+                            </div>
                         </div>
 
                         {/* Code Editor Area */}
                         <div className="flex-grow relative bg-[#0d1117]">
-                            {activeFile ? (
-                                <CodeBlock code={activeFile.content} />
-                            ) : (
-                                <div className="p-10 text-center text-gray-500 text-sm">Selecione um arquivo para visualizar</div>
-                            )}
+                            <CodeBlock code={scriptData.content} />
                         </div>
 
                         {/* Action Bar */}
                         <div className="p-4 border-t border-white/5 bg-[#161b22] flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="text-xs text-gray-400 font-mono">
-                                    <span className="text-blue-500 text-[10px]">PROJECT:</span> {extensionData.name}
+                                    <span className="text-blue-500 text-[10px]">TARGET:</span> EXTENDSCRIPT
                                 </div>
                                 <div className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                                    READY
+                                    COMPILED
                                 </div>
                             </div>
                             <button
-                                onClick={downloadExtension}
+                                onClick={downloadScript}
                                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold tracking-wide transition-all shadow-lg hover:shadow-blue-500/20"
                             >
-                                <Download size={14} /> DOWNLOAD ZIP
+                                <Download size={14} /> DOWNLOAD .JSX
                             </button>
                         </div>
                     </>

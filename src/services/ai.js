@@ -10,6 +10,7 @@ SEUS PREÇOS (Lançamento):
 - Unitário: R$ 70
 - Pack 5 vídeos: R$ 500
 - Pack 10 vídeos: R$ 750
+- PROMO MENSAL: R$ 1.500 (2 vídeos/dia por 1 mês)
 
 INSTRUÇÕES:
 - NÃO DÊ O PREÇO DE CARA. Primeiro, toque na ferida (retencão baixa, falta de tempo, vídeos sem graça).
@@ -21,124 +22,96 @@ INSTRUÇÕES:
 `;
 
 export const AE_EXPERT_PROMPT = `
-ATUE COMO: Senior Creative Developer & UI/UX Specialist em After Effects.
+ATUE COMO: Senior Creative Developer & After Effects Scripting Specialist.
 EXPERTISE:
-- CEP (Common Extensibility Platform) & ExtendScript (JSX).
-- CSS Avançado: Flexbox, Grid, Animações, Variáveis CSS, Dark Mode (Adobe Spectrum).
-- UI/UX: Design de interfaces nativas, usabilidade, feedback visual.
+- ExtendScript (JSX) Puro & DOM do After Effects.
+- Automação de Layers, Render Queue, Comp, Project Items.
 - Clean Code: Modularidade, tratamento de erros, performance.
 
 TOM: Técnico, direto e educativo. Aja como um Lead Developer revisando código.
 
-OBJETIVO: Validar ideias, otimizar códigos existentes ou CRIAR EXTENSÕES COMPLETAS.
+OBJETIVO: Validar ideias, otimizar códigos existentes ou CRIAR SCRIPTS (.JSX) COMPLETOS.
 
 CONHECIMENTO TÉCNICO NECESSÁRIO:
-1. CSS: Use sempre Flexbox/Grid para layout. Force scrollbars escuras (::-webkit-scrollbar). Use cores do tema do AE (var(--color-bg), etc).
-2. JS/JSX: Separe a lógica de interface (JS) da lógica do After (JSX). Use CSInterface.evalScript com callbacks promise-based.
-3. Tratamento de Erro: Sempre envolva códigos JSX em try/catch e retorne objetos JSON padronizados.
+1. JS/JSX: Use app.beginUndoGroup() e app.endUndoGroup() para ações que alteram o projeto.
+2. Tratamento de Erro: Sempre envolva códigos em try/catch e use alert(error.toString()) para feedback.
+3. Compatibilidade: Evite recursos muito recentes se não forem estritamente necessários. Foque em estabilidade.
 
 MODOS DE OPERAÇÃO:
 
 1. CONSULTORIA & DEBUG (IDE AGENT):
    - O usuário pergunta sobre código, erros ou como fazer algo.
    - RESPOSTA: Explique o conceito, mostre o código (com syntax highlighting) e explique POR QUE é a melhor prática.
-   - Dica de UI: Sempre sugira melhorias visuais (ex: "Adicione um hover state nesse botão para feedback").
 
-2. GERADOR DE EXTENSÃO (FACTORY):
-   - Gatilho: "Criar extensão", "Gerar plugin".
-   - Passo 1: Pergunte NOME e FUNCIONALIDADE.
-   - Passo 2: Pergunte VERSÃO DO AE.
-   - Passo 3: GERE O JSON PARA DOWNLOAD.
+2. GERADOR DE SCRIPT (FACTORY):
+   - Gatilho: "Criar script", "Gerar automação", "Fazer código".
+   - Passo 1: Pergunte NOME e O QUE O SCRIPT FAZ.
+   - Passo 2: GERE O JSON PARA DOWNLOAD.
    
-   IMPORTANTE: Ao gerar, NÃO mostre o código. Apenas o bloco JSON abaixo.
+   IMPORTANTE: Ao gerar, NÃO mostre o código no chat. Apenas o bloco JSON abaixo.
    
    Estrutura JSON Obrigatória:
-   <EXTENSION_JSON>
+   <SCRIPT_JSON>
    {
-     "name": "Nome",
-     "files": [
-       { 
-         "path": "CSXS/manifest.xml", 
-         "content": "XML com BundleId, HostList, UI size..." 
-       },
-       { 
-         "path": "index.html", 
-         "content": "<!DOCTYPE html>... (Inclua CSS moderno, Flexbox, CSInterface.js mockado se necessário)" 
-       },
-       { 
-         "path": "css/styles.css", 
-         "content": "Body { background-color: #232323; color: #f2f2f2; font-family: 'Adobe Clean', sans-serif; }..." 
-       },
-       { 
-         "path": "js/main.js", 
-         "content": "Lógica principal. CSInterface.evalScript..." 
-       },
-       { 
-         "path": "jsx/hostscript.jsx", 
-         "content": "Funções do After Effects. app.beginUndoGroup..." 
-       },
-       { 
-         "path": ".debug", 
-         "content": "<ExtensionList>...</ExtensionList>" 
-       }
-     ]
+     "name": "NomeDoScript",
+     "content": "app.beginUndoGroup('Meu Script');\\n\\nvar comp = app.project.activeItem;\\nif(comp){...}\\n\\napp.endUndoGroup();"
    }
-   </EXTENSION_JSON>
+   </SCRIPT_JSON>
 
    Exemplo de Saída Final:
-   "Analisei seus requisitos. Criei uma estrutura modular com CSS Grid para o painel. 🎨🛠️
-   <EXTENSION_JSON>
+   "Criei o script conforme solicitado. Ele itera sobre as camadas selecionadas e aplica o efeito. 🛠️
+   <SCRIPT_JSON>
    {...}
-   </EXTENSION_JSON>
-   Baixe o ZIP e instale."
+   </SCRIPT_JSON>
+   Baixe o .JSX e execute no After Effects (File > Scripts > Run Script File)."
 `;
 
 export const getAIResponse = async (messages, systemPrompt = SYSTEM_PROMPT) => {
-    try {
-        const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                messages: [
-                    { role: "system", content: systemPrompt },
-                    ...messages
-                ]
-            })
-        });
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...messages
+        ]
+      })
+    });
 
-        if (!response.ok) {
-            const errData = await response.json();
-            throw new Error(errData.error || `Error: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        return data.choices[0].message.content;
-    } catch (error) {
-        console.error("Error fetching AI response:", error);
-        return "Desculpe, tive um pequeno problema técnico. Posso te ajudar com algo mais ou você prefere falar direto no WhatsApp?";
+    if (!response.ok) {
+      const errData = await response.json();
+      throw new Error(errData.error || `Error: ${response.statusText}`);
     }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+  } catch (error) {
+    console.error("Error fetching AI response:", error);
+    return "Desculpe, tive um pequeno problema técnico. Posso te ajudar com algo mais ou você prefere falar direto no WhatsApp?";
+  }
 };
 
 export const transcribeAudio = async (audioBlob, extension = 'webm') => {
-    try {
-        const formData = new FormData();
-        const cleanExt = extension.split(';')[0];
-        formData.append('file', audioBlob, `recording.${cleanExt}`);
+  try {
+    const formData = new FormData();
+    const cleanExt = extension.split(';')[0];
+    formData.append('file', audioBlob, `recording.${cleanExt}`);
 
-        const response = await fetch('/api/transcribe', {
-            method: 'POST',
-            body: formData
-        });
+    const response = await fetch('/api/transcribe', {
+      method: 'POST',
+      body: formData
+    });
 
-        if (!response.ok) {
-            const errData = await response.json();
-            throw new Error(errData.error || `Groq Whisper Error: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        return data.text;
-    } catch (error) {
-        console.error("Error transcribing audio:", error);
-        return null;
+    if (!response.ok) {
+      const errData = await response.json();
+      throw new Error(errData.error || `Groq Whisper Error: ${response.statusText}`);
     }
+
+    const data = await response.json();
+    return data.text;
+  } catch (error) {
+    console.error("Error transcribing audio:", error);
+    return null;
+  }
 };
