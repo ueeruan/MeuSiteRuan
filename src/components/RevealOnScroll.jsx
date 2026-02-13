@@ -10,7 +10,7 @@ const RevealOnScroll = ({ children, delay = 0, width = "100%" }) => {
                 }}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, amount: 0.1 }} // Triggers when 10% visible
+                viewport={{ once: true, amount: 0.05, margin: "0px 0px -50px 0px" }} // Triggers even earlier
                 transition={{ duration: 0.5, delay: delay, ease: "easeOut" }}
             >
                 {children}

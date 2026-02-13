@@ -31,6 +31,18 @@ const Navbar = () => {
 
     const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
+    const handleNavClick = (e, href) => {
+        if (href.startsWith('#')) {
+            e.preventDefault();
+            const targetId = href.substring(1);
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({ behavior: 'smooth' });
+            }
+            setIsMobileMenuOpen(false);
+        }
+    };
+
     return (
         <nav
             className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 border-b ${isScrolled
@@ -39,7 +51,11 @@ const Navbar = () => {
                 }`}
         >
             <div className="container mx-auto px-4 flex justify-between items-center">
-                <a href="#home" className="text-2xl font-bold tracking-tighter text-white relative z-50">
+                <a
+                    href="#home"
+                    onClick={(e) => handleNavClick(e, '#home')}
+                    className="text-2xl font-bold tracking-tighter text-white relative z-50"
+                >
                     RZ<span className="text-brand-accent">.</span>
                 </a>
 
@@ -50,6 +66,7 @@ const Navbar = () => {
                             <motion.a
                                 key={link.name}
                                 href={link.href}
+                                onClick={(e) => handleNavClick(e, link.href)}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 className="ml-4 relative overflow-hidden px-6 py-2.5 rounded-full bg-gradient-to-r from-brand-accent to-purple-600 text-white font-bold text-sm tracking-wider shadow-lg shadow-brand-accent/25 hover:shadow-brand-accent/40 transition-all border border-brand-accent/20"
@@ -63,6 +80,7 @@ const Navbar = () => {
                                 href={link.href}
                                 target={link.isNewTab ? "_blank" : "_self"}
                                 rel={link.isNewTab ? "noopener noreferrer" : ""}
+                                onClick={(e) => !link.isNewTab && handleNavClick(e, link.href)}
                                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 relative group overflow-hidden ${link.isNewTab
                                     ? 'text-brand-accent hover:bg-brand-accent/10'
                                     : 'text-gray-300 hover:text-white hover:bg-white/5'
@@ -107,7 +125,7 @@ const Navbar = () => {
                                             ? "text-brand-accent bg-brand-accent/10 rounded-xl"
                                             : "text-white/90 hover:text-white"
                                             } ${link.isNewTab ? "text-lg text-brand-accent/60 italic underline decoration-brand-accent/30" : ""}`}
-                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        onClick={(e) => !link.isNewTab && handleNavClick(e, link.href)}
                                     >
                                         {link.name}
                                     </motion.a>
