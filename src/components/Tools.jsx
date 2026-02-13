@@ -21,7 +21,17 @@ const pluginsData = [
         tags: ["Extension", "Free"],
         password: "Senha: Sw2kkj",
         category: "Automation"
-    }
+    },
+    { id: 3, title: "VFX Suite 2024", description: "Complete toolkit for realistic visual effects in After Effects.", icon: Zap, link: "https://www.mediafire.com/file/xq33tz12bffd2ka/VFX+Suite+2024.0.1.zip/file", tags: ["VFX", "Suite"], category: "Visual Effects" },
+    { id: 4, title: "Glitchify", description: "Create high-quality glitch effects instantly.", icon: Zap, link: "https://www.mediafire.com/file/wtmxb9cgd6mkf17/Glitchify.zip/file", tags: ["Glitch", "FX"], category: "Stylize" },
+    { id: 5, title: "Pixel Sorter 2", description: "The tool that started the pixel sorting revolution in AE.", icon: Zap, link: "https://www.mediafire.com/file/10611uzw5q2xppp/AEPixelSorter2_v2.2.2.zip/file", tags: ["Pixel", "Sort"], category: "Glitch" },
+    { id: 6, title: "Pixel Sorter 3", description: "The latest version of the classic pixel sorting effect.", icon: Zap, link: "https://www.mediafire.com/file/6t0eeidi53tntdr/Pixel+Sorter+3.rar/file", tags: ["Pixel", "V3"], category: "Glitch" },
+    { id: 7, title: "Twixtor Pro", description: "Intelligent slow motion and speed ramping.", icon: Zap, link: "https://www.mediafire.com/file/zm36stwvbi1mft5/Twixtor+Pro+v7.5.5.rar/file", tags: ["SlowMo", "Time"], category: "Time" },
+    { id: 8, title: "Twitch", description: "Synchronized chaotic effects for motion graphics.", icon: Zap, link: "https://www.mediafire.com/file/8lg1hds1ec5jzyi/Twitch.rar/file", tags: ["Chaos", "FX"], category: "Stylize" },
+    { id: 9, title: "Boris FX Continuum", description: "The world's most complete plugin collection.", icon: Zap, link: "https://www.mediafire.com/file/wgs28vczpa8ayuj/Boris+FX+Continuum+Plugi-ins+2024.5+V17.5.1.1404+(WIN).zip/file", tags: ["Suite", "Pro"], category: "VFX" },
+    { id: 10, title: "RSMB", description: "ReelSmart Motion Blur - Natural motion blur generator.", icon: Zap, link: "https://www.mediafire.com/file/3fvnihrbgsvzyi7/RSMB_%282%29.zip/file", tags: ["Blur", "Motion"], category: "Utility" },
+    { id: 11, title: "Element 3D v2.2", description: "High-performance 3D particle based object engine.", icon: Package, link: "https://www.mediafire.com/file/go0d2s1phvtbw94/Element3D2.2.3.2192.zip/file", tags: ["3D", "Render"], category: "3D" },
+    { id: 12, title: "Deep Glow", description: "Physically accurate glow generator.", icon: Zap, link: "https://www.mediafire.com/file/3q59b7w15sd1snp/Deep-Glow-v1.6-(WIN).zip/file", tags: ["Glow", "Lighting"], category: "Stylize" }
 ];
 
 const softwareData = [
