@@ -10,6 +10,7 @@ import Background from './components/Background';
 import Lenis from 'lenis';
 
 import DownloadsPage from './components/DownloadsPage';
+import FalaAIPage from './components/FalaAIPage';
 import FloatingChat from './components/FloatingChat';
 
 const AnimatedRoutes = () => {
@@ -21,6 +22,7 @@ const AnimatedRoutes = () => {
         <Route path="/" element={<Home />} />
         <Route path="/servicos" element={<ServicesPage />} />
         <Route path="/downloads" element={<DownloadsPage />} />
+        <Route path="/fala-ai" element={<FalaAIPage />} />
         <Route path="/contato" element={<ContactPage />} />
         <Route path="/feedback" element={<Feedback />} />
       </Routes>

@@ -7,6 +7,7 @@
   --color-brand-accent: #10b981;
   --color-brand-emerald-dark: #064e3b;
   --color-brand-emerald-glow: rgba(16, 185, 129, 0.2);
+  --color-brand-blue-glow: rgba(59, 130, 246, 0.2);
 
   --font-heading: 'Archivo Black', sans-serif;
   --font-sans: 'Plus Jakarta Sans', sans-serif;
@@ -71,6 +72,10 @@
 
 @utility emerald-glow {
   box-shadow: 0 0 40px rgba(16, 185, 129, 0.1);
+}
+
+@utility blue-glow {
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.1);
 }
 
 @utility title-gradient {

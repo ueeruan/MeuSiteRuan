@@ -19,14 +19,26 @@ INSTRUÇÕES:
 - Mantenha o tom curto, mas persuasivo.
 `;
 
-export const getAIResponse = async (messages) => {
+export const AE_EXPERT_PROMPT = `
+ATUE COMO: Especialista em After Effects e Desenvolvedor de Extensões (CEP/ExtendScript).
+TOM: Técnico, direto e inovador. Estilo desenvolvedor sênior.
+OBJETIVO: Validar ideias de extensões e ferramentas para After Effects.
+
+INSTRUÇÕES:
+- Pergunte detalhes da ideia: "O que ela automatiza?", "Como seria o fluxo?".
+- Diga o que dá pra fazer via ExtendScript e o que é impossível.
+- Se a ideia for boa, diga: "Diga 'enviar para o Juan' que eu mando o briefing técnico direto pra ele."
+- Máximo 3 frases por resposta.
+`;
+
+export const getAIResponse = async (messages, systemPrompt = SYSTEM_PROMPT) => {
     try {
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 messages: [
-                    { role: "system", content: SYSTEM_PROMPT },
+                    { role: "system", content: systemPrompt },
                     ...messages
                 ]
             })

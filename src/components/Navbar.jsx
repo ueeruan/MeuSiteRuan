@@ -12,6 +12,7 @@ const Navbar = () => {
         { name: 'Home', href: '/', id: 'home' },
         { name: 'Serviços', href: '/servicos', id: 'servicos' },
         { name: 'Downloads', href: '/downloads', id: 'downloads' },
+        { name: 'FalaAI', href: '/fala-ai', id: 'falaai' },
         { name: 'Contato', href: '/contato', id: 'contato' },
     ];
 
