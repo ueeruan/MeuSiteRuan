@@ -3,50 +3,79 @@ import { motion } from 'framer-motion';
 
 const About = () => {
     return (
-        <section className="py-24 text-white relative bg-brand-dark" id="about">
-            <div className="container mx-auto px-4 max-w-4xl">
-                <RevealOnScroll>
-                    <div className="bg-brand-red-dark/5 backdrop-blur-sm rounded-3xl p-8 md:p-16 border border-brand-accent/10 relative overflow-hidden group hover:border-brand-accent/30 transition-all duration-500">
-                        {/* Interactive Background Gradient */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-brand-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-
-                        <h2 className="text-4xl md:text-5xl font-bold mb-10 text-center tracking-tighter">
-                            Sobre o <span className="text-brand-accent drop-shadow-[0_0_10px_rgba(220,20,60,0.3)]">Editor</span>
-                        </h2>
-
-                        <div className="space-y-8 text-lg text-red-100/70 leading-relaxed text-center font-light">
-                            <p>
-                                Com <span className="font-bold text-white px-3 py-1 bg-brand-accent/20 rounded-lg border border-brand-accent/30">4 anos de experiência</span>, transformo conteúdos brutos em narrativas visuais cinematográficas e dinâmicas.
+        <section className="py-32 bg-transparent relative" id="about">
+            <div className="container mx-auto px-4 max-w-6xl">
+                <div className="grid lg:grid-cols-2 gap-20 items-center">
+                    <RevealOnScroll>
+                        <div className="relative">
+                            <motion.div
+                                initial={{ width: 0 }}
+                                whileInView={{ width: '40px' }}
+                                className="h-1 bg-brand-accent mb-6"
+                            />
+                            <span className="text-brand-accent font-bold tracking-[0.4em] uppercase text-[10px] mb-4 block">Processo Criativo</span>
+                            <h2 className="text-5xl md:text-7xl font-heading mb-10 leading-[0.9] tracking-tighter">
+                                DESIGN QUE <span className="text-brand-accent">PULSA</span> NO RITMO.
+                            </h2>
+                            <p className="text-slate-400 text-lg mb-10 font-light leading-relaxed max-w-xl">
+                                Com foco em edições dinâmicas de alta performance, transformo horas de conteúdo bruto em peças de retenção absurda. Especialista em High-End Reels, TikTok e Edição Narrativa.
                             </p>
-                            <p className="max-w-2xl mx-auto">
-                                Especialista em <span className="text-white font-medium italic">ritmos dinâmicos</span> e efeitos que prendem a atenção. Meu foco é elevar a qualidade do seu projeto através de uma estética moderna e profissional.
-                            </p>
+
+                            <div className="flex gap-4">
+                                <div className="glass-panel p-8 rounded-[2.5rem] flex-1 border-brand-accent/10">
+                                    <div className="text-white font-heading text-4xl mb-2">500<span className="text-brand-accent">+</span></div>
+                                    <div className="text-white/20 text-[10px] uppercase tracking-[0.2em] font-black">Vídeos Entregues</div>
+                                </div>
+                                <div className="glass-panel p-8 rounded-[2.5rem] flex-1 border-brand-accent/10">
+                                    <div className="text-white font-heading text-4xl mb-2">100<span className="text-brand-accent">%</span></div>
+                                    <div className="text-white/20 text-[10px] uppercase tracking-[0.2em] font-black">Satisfação Total</div>
+                                </div>
+                            </div>
                         </div>
+                    </RevealOnScroll>
 
-                        <div className="mt-16">
-                            <h3 className="text-sm uppercase tracking-[0.4em] mb-10 text-center text-brand-accent/60 font-medium">Power Stacks</h3>
-                            <div className="flex flex-wrap justify-center gap-8">
-                                {/* Skill Badge: After Effects */}
+                    <RevealOnScroll delay={0.2}>
+                        <div className="relative">
+                            {/* Decorative Elements */}
+                            <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-accent/5 rounded-full blur-3xl" />
+
+                            <div className="grid grid-cols-2 gap-6 relative z-10">
+                                {/* Skill Cards */}
                                 <motion.div
-                                    whileHover={{ scale: 1.05, y: -5 }}
-                                    className="flex flex-col items-center gap-3 p-6 bg-white/5 rounded-2xl border border-red-500/10 w-36 md:w-44 glass-panel hover:border-brand-accent/50 transition-colors"
+                                    whileHover={{ y: -15, rotate: -2 }}
+                                    className="p-10 glass-panel rounded-[3rem] flex flex-col items-center justify-center gap-6 border-brand-accent/5"
                                 >
-                                    <div className="text-brand-accent font-black text-3xl">Ae</div>
-                                    <span className="text-xs font-bold tracking-widest uppercase">After Effects</span>
+                                    <div className="w-16 h-16 rounded-2xl bg-brand-accent/10 flex items-center justify-center text-brand-accent text-4xl font-heading">Ae</div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-white/30 text-center">After Effects</span>
                                 </motion.div>
 
-                                {/* Skill Badge: Premiere Pro */}
                                 <motion.div
-                                    whileHover={{ scale: 1.05, y: -5 }}
-                                    className="flex flex-col items-center gap-3 p-6 bg-white/5 rounded-2xl border border-red-500/10 w-36 md:w-44 glass-panel hover:border-brand-accent/50 transition-colors"
+                                    whileHover={{ y: -15, rotate: 2 }}
+                                    className="p-10 glass-panel rounded-[3rem] flex flex-col items-center justify-center gap-6 border-brand-accent/5 mt-10 md:mt-20"
                                 >
-                                    <div className="text-red-500 font-black text-3xl">Pr</div>
-                                    <span className="text-xs font-bold tracking-widest uppercase">Premiere Pro</span>
+                                    <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-white text-4xl font-heading">Pr</div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-white/30 text-center">Premiere Pro</span>
+                                </motion.div>
+
+                                <motion.div
+                                    whileHover={{ y: -15, rotate: -2 }}
+                                    className="p-10 glass-panel rounded-[3rem] flex flex-col items-center justify-center gap-6 border-brand-accent/5"
+                                >
+                                    <div className="w-16 h-16 rounded-2xl bg-brand-accent/10 flex items-center justify-center text-brand-accent text-4xl font-heading">Ps</div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-white/30 text-center">Photoshop</span>
+                                </motion.div>
+
+                                <motion.div
+                                    whileHover={{ y: -15, rotate: 2 }}
+                                    className="p-10 glass-panel rounded-[3rem] flex flex-col items-center justify-center gap-6 border-brand-accent/5 mt-10"
+                                >
+                                    <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-white text-4xl font-heading">Ai</div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-white/30 text-center">Illustrator</span>
                                 </motion.div>
                             </div>
                         </div>
-                    </div>
-                </RevealOnScroll>
+                    </RevealOnScroll>
+                </div>
             </div>
         </section>
     );

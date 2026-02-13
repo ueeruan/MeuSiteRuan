@@ -7,131 +7,133 @@ const Background = () => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         let animationFrameId;
-        let scrollY = window.scrollY;
 
-        const handleScroll = () => {
-            scrollY = window.scrollY;
-        };
+        const particles = [];
+        const particleCount = window.innerWidth < 768 ? 40 : 100;
+        const connectionDistance = 150;
+        const mouse = { x: null, y: null, radius: 150 };
+        const gyro = { x: 0, y: 0 };
 
-        window.addEventListener('scroll', handleScroll);
-
-        const setCanvasSize = () => {
+        const resize = () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         };
 
-        setCanvasSize();
+        const handleMouseMove = (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
+        };
 
-        const emojis = ['🎬', '🎥', '✂️', '🎞️', '🎧', '💻', '✨', '🔥', '🚀', '💾', '📹', '🕐', '🍎'];
-        const particlesArray = [];
-        const scrollParticlesArray = [];
+        const handleDeviceOrientation = (e) => {
+            // Sensitivity adjustment for gyro
+            gyro.x = (e.gamma || 0) * 0.1;
+            gyro.y = (e.beta || 0) * 0.1;
+        };
 
-        const numberOfEmojis = 25;
-        const numberOfScrollParticles = 60;
+        window.addEventListener('resize', resize);
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('deviceorientation', handleDeviceOrientation);
+        resize();
 
-        // Emoji Class (Floating Ambiently)
-        class EmojiParticle {
+        class Particle {
             constructor() {
+                this.init();
+            }
+
+            init() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.speedX = (Math.random() * 0.3) - 0.15;
-                this.speedY = (Math.random() * 0.3) - 0.15;
-                this.size = Math.random() * 20 + 20;
-                this.emoji = emojis[Math.floor(Math.random() * emojis.length)];
-                this.opacity = Math.random() * 0.3 + 0.1;
-            }
-
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-
-                if (this.x > canvas.width + 50) this.x = -50;
-                if (this.x < -50) this.x = canvas.width + 50;
-                if (this.y > canvas.height + 50) this.y = -50;
-                if (this.y < -50) this.y = canvas.height + 50;
-            }
-
-            draw() {
-                ctx.globalAlpha = this.opacity;
-                ctx.font = `${this.size}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif`;
-                ctx.fillStyle = '#ffffff';
-                ctx.fillText(this.emoji, this.x, this.y);
-                ctx.globalAlpha = 1.0;
-            }
-        }
-
-        // Scroll Particle Class (Reacts to Scroll)
-        class ScrollParticle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 0.5; // Small dots
+                this.size = Math.random() * 2 + 1;
+                this.baseX = this.x;
                 this.baseY = this.y;
-                this.speed = Math.random() * 0.5 + 0.2; // Parallax factor
-                this.opacity = Math.random() * 0.5 + 0.2;
+                this.vx = (Math.random() * 1.5 - 0.75);
+                this.vy = (Math.random() * 1.5 - 0.75);
+                this.density = (Math.random() * 30) + 1;
             }
 
             update() {
-                // Parallax effect: moves opposite to scroll direction
-                // We use modulo to wrap around screen
-                let parallaxY = this.baseY - (scrollY * this.speed);
+                // Apply Gyro movement (Mobile)
+                this.x += this.vx + gyro.x;
+                this.y += this.vy + gyro.y;
 
-                // Wrap around logic
-                this.y = (parallaxY % canvas.height);
-                if (this.y < 0) this.y += canvas.height;
+                // Mouse interaction (PC)
+                if (mouse.x != null) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    let forceDirectionX = dx / distance;
+                    let forceDirectionY = dy / distance;
+                    let maxDistance = mouse.radius;
+                    let force = (maxDistance - distance) / maxDistance;
+                    let directionX = forceDirectionX * force * this.density;
+                    let directionY = forceDirectionY * force * this.density;
+
+                    if (distance < mouse.radius) {
+                        this.x -= directionX;
+                        this.y -= directionY;
+                    }
+                }
+
+                // Wrap around screen
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.y < 0) this.y = canvas.height;
+                if (this.y > canvas.height) this.y = 0;
             }
 
             draw() {
-                ctx.globalAlpha = this.opacity;
-                ctx.fillStyle = '#DC143C'; // Crimson dots
+                ctx.fillStyle = '#10b981';
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
-                ctx.globalAlpha = 1.0;
             }
         }
 
-        const init = () => {
-            particlesArray.length = 0;
-            scrollParticlesArray.length = 0;
+        const connect = () => {
+            let opacityValue = 1;
+            for (let a = 0; a < particles.length; a++) {
+                for (let b = a; b < particles.length; b++) {
+                    let dx = particles[a].x - particles[b].x;
+                    let dy = particles[a].y - particles[b].y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
 
-            for (let i = 0; i < numberOfEmojis; i++) {
-                particlesArray.push(new EmojiParticle());
+                    if (distance < connectionDistance) {
+                        opacityValue = 1 - (distance / connectionDistance);
+                        ctx.strokeStyle = `rgba(16, 185, 129, ${opacityValue * 0.2})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(particles[b].x, particles[b].y);
+                        ctx.stroke();
+                    }
+                }
             }
-            for (let i = 0; i < numberOfScrollParticles; i++) {
-                scrollParticlesArray.push(new ScrollParticle());
+        };
+
+        const init = () => {
+            particles.length = 0;
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
             }
         };
 
         const animate = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw Emojis
-            for (let i = 0; i < particlesArray.length; i++) {
-                particlesArray[i].update();
-                particlesArray[i].draw();
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
             }
-
-            // Draw Scroll Particles
-            for (let i = 0; i < scrollParticlesArray.length; i++) {
-                scrollParticlesArray[i].update();
-                scrollParticlesArray[i].draw();
-            }
-
+            connect();
             animationFrameId = requestAnimationFrame(animate);
         };
 
         init();
         animate();
 
-        window.addEventListener('resize', () => {
-            setCanvasSize();
-            init();
-        });
-
         return () => {
-            window.removeEventListener('resize', setCanvasSize);
-            window.removeEventListener('scroll', handleScroll);
+            window.removeEventListener('resize', resize);
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('deviceorientation', handleDeviceOrientation);
             cancelAnimationFrame(animationFrameId);
         };
     }, []);
@@ -139,7 +141,7 @@ const Background = () => {
     return (
         <canvas
             ref={canvasRef}
-            className="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-40 mix-blend-screen"
+            className="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-60"
         />
     );
 };

@@ -1,14 +1,30 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 @theme {
-  --color-brand-dark: #050505;
-  --color-brand-surface: #0a0a0a;
-  --color-brand-accent: #DC143C;
-  --color-brand-red-dark: #8B0000;
-  --color-brand-red-glow: rgba(220, 20, 60, 0.4);
-  --font-sans: 'Outfit', 'Inter', sans-serif;
+  --color-brand-dark: #020403;
+  --color-brand-surface: #0a0f0d;
+  --color-brand-accent: #10b981;
+  --color-brand-emerald-dark: #064e3b;
+  --color-brand-emerald-glow: rgba(16, 185, 129, 0.2);
 
-  --animate-shimmer: shimmer 2.5s infinite linear;
+  --font-heading: 'Archivo Black', sans-serif;
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+
+  --animate-shimmer: shimmer 3s infinite linear;
+  --animate-float: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
 }
 
 @keyframes shimmer {
@@ -25,12 +41,13 @@
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: auto;
   }
 
   body {
-    @apply bg-brand-dark text-slate-100 font-sans antialiased;
+    @apply bg-brand-dark text-slate-300 font-sans antialiased selection:bg-brand-accent selection:text-brand-dark;
     line-height: 1.6;
-    letter-spacing: -0.01em;
+    overflow-x: hidden;
   }
 
   h1,
@@ -39,43 +56,39 @@
   h4,
   h5,
   h6 {
-    @apply font-bold tracking-tight text-white;
-  }
-
-  h1 {
-    @apply text-4xl md:text-6xl lg:text-7xl leading-tight;
-  }
-
-  h2 {
-    @apply text-3xl md:text-4xl lg:text-5xl mb-8;
-  }
-
-  p {
-    @apply text-slate-300;
+    @apply font-heading tracking-tighter text-white uppercase;
   }
 }
 
 @utility animate-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.1), transparent);
   background-size: 200% 100%;
 }
 
 @utility glass-panel {
-  @apply bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl;
+  @apply bg-brand-surface/60 backdrop-blur-2xl border border-white/5 shadow-2xl;
+}
+
+@utility emerald-glow {
+  box-shadow: 0 0 40px rgba(16, 185, 129, 0.1);
+}
+
+@utility title-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-brand-accent;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-brand-dark);
+  background: #000;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-brand-blue);
-  border-radius: 4px;
+  background: #064e3b;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {

@@ -1,31 +1,33 @@
 import RevealOnScroll from './RevealOnScroll';
 import { Phone, Instagram } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const Contact = () => {
     return (
-        <section className="py-24 bg-brand-dark text-white relative overflow-hidden" id="contact">
+        <section className="py-32 bg-transparent text-white relative overflow-hidden" id="contact">
             <div className="container mx-auto px-4 text-center">
                 <RevealOnScroll>
-                    <h2 className="text-4xl md:text-6xl font-bold mb-16 tracking-tighter">
-                        Vamos criar <span className="text-brand-accent">algo épico?</span>
-                    </h2>
+                    <div className="flex flex-col items-center mb-20">
+                        <span className="text-brand-accent font-bold tracking-[0.4em] uppercase text-[10px] mb-4">Contato</span>
+                        <h2 className="text-5xl md:text-8xl font-heading tracking-tighter">
+                            VAMOS CRIAR <span className="text-brand-accent italic">ALGO NOVO?</span>
+                        </h2>
+                    </div>
                 </RevealOnScroll>
 
-                <div className="flex flex-col md:flex-row justify-center items-center gap-10 md:gap-12">
+                <div className="flex flex-col md:flex-row justify-center items-center gap-6 md:gap-8">
                     {[
                         {
                             href: "https://wa.me/5588996126717",
                             icon: Phone,
                             label: "(88) 99612-6717",
-                            hover: "hover:text-brand-accent",
-                            glow: "group-hover:bg-brand-accent/20"
+                            tag: "WhatsApp"
                         },
                         {
                             href: "https://instagram.com/ru4neditsz",
                             icon: Instagram,
                             label: "@ru4neditsz",
-                            hover: "hover:text-red-500",
-                            glow: "group-hover:bg-red-500/20"
+                            tag: "Instagram"
                         },
                         {
                             href: "https://tiktok.com/@ruanzitwo",
@@ -35,24 +37,27 @@ const Contact = () => {
                                 </svg>
                             ),
                             label: "ruanzitwo",
-                            hover: "hover:text-white",
-                            glow: "group-hover:bg-white/10"
+                            tag: "TikTok"
                         }
                     ].map((item, i) => (
                         <RevealOnScroll key={i} delay={i * 0.1}>
-                            <a
+                            <motion.a
                                 href={item.href}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`flex flex-col items-center gap-4 group transition-all duration-300 ${item.hover}`}
+                                whileHover={{ y: -10 }}
+                                className="flex flex-col items-center gap-6 group glass-panel p-10 rounded-[3rem] w-full md:w-64 border-brand-accent/5 hover:border-brand-accent/40 transition-all duration-700"
                             >
-                                <div className={`p-6 bg-white/5 rounded-3xl border border-white/10 transition-all duration-500 ${item.glow} group-hover:scale-110 group-hover:border-brand-accent/30`}>
+                                <div className="w-16 h-16 rounded-2xl bg-brand-accent/5 flex items-center justify-center text-brand-accent group-hover:bg-brand-accent group-hover:text-brand-dark transition-all duration-500">
                                     <item.icon size={28} />
                                 </div>
-                                <span className="font-bold tracking-widest text-sm uppercase opacity-60 group-hover:opacity-100 transition-opacity">
-                                    {item.label}
-                                </span>
-                            </a>
+                                <div className="flex flex-col items-center gap-1">
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-brand-accent/40">{item.tag}</span>
+                                    <span className="font-heading text-lg tracking-tight group-hover:text-brand-accent transition-colors">
+                                        {item.label}
+                                    </span>
+                                </div>
+                            </motion.a>
                         </RevealOnScroll>
                     ))}
                 </div>
