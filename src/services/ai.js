@@ -8,6 +8,7 @@ REGRA DE OURO: Responda sempre em até 3 frases curtas.
 
 SEUS PREÇOS (Lançamento):
 - Unitário: R$ 70
+- Pack 5 vídeos: R$ 500
 - Pack 10 vídeos: R$ 750
 
 INSTRUÇÕES:

@@ -22,6 +22,23 @@ const PROMOTIONS = [
         whatsapp: "Opa, tenho interesse na promoção de edição por 70 reais!"
     },
     {
+        id: 'pack5',
+        title: 'PACK 5 VÍDEOS',
+        badge: 'Meio Termo Ideal',
+        description: 'O equilíbrio perfeito. Teste nossa qualidade com um pacote intermediário.',
+        originalPrice: '750',
+        price: '500',
+        features: [
+            "5 Vídeos de até 2 min",
+            "Color Grading Profissional",
+            "Legendas Estilizadas V2",
+            "Sound Design Imersivo",
+            "Mixagem de Áudio Master",
+            "Exportação em 4K HDR"
+        ],
+        whatsapp: "Opa, quero reservar o pack de 5 vídeos por 500 reais!"
+    },
+    {
         id: 'combo',
         title: 'COMBO 10 VÍDEOS',
         badge: 'Melhor Custo-Benefício',
