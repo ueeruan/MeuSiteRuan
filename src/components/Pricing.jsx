@@ -1,86 +1,188 @@
 import RevealOnScroll from './RevealOnScroll';
-import { motion } from 'framer-motion';
-import { Check, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Check, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
+
+const PROMOTIONS = [
+    {
+        id: 'premium',
+        title: 'EDIÇÃO PREMIUM',
+        badge: 'Promoção de Lançamento',
+        description: 'Transforme seu conteúdo bruto em uma obra-prima de alta performance.',
+        originalPrice: '150',
+        price: '70',
+        features: [
+            "Vídeos de até 2 minutos",
+            "Color Grading Profissional",
+            "Legendas Estilizadas V2",
+            "Sound Design Imersivo",
+            "Mixagem de Áudio Master",
+            "Exportação em 4K HDR"
+        ],
+        whatsapp: "Opa, tenho interesse na promoção de edição por 70 reais!"
+    },
+    {
+        id: 'combo',
+        title: 'COMBO 10 VÍDEOS',
+        badge: 'Melhor Custo-Benefício',
+        description: 'Frequência e economia. Ideal para canais e redes sociais.',
+        originalPrice: '1.500',
+        price: '750',
+        features: [
+            "10 Vídeos de até 2 min",
+            "Prioridade na Entrega",
+            "Estilo Visual Consistente",
+            "Sound Design Completo",
+            "Mixagem de Áudio Master",
+            "Backup por 6 Meses"
+        ],
+        whatsapp: "Opa, quero reservar o combo de 10 vídeos por 750 reais!"
+    }
+];
 
 const Pricing = () => {
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [direction, setDirection] = useState(0);
+
+    const nextSlide = () => {
+        setDirection(1);
+        setCurrentIndex((prev) => (prev + 1) % PROMOTIONS.length);
+    };
+
+    const prevSlide = () => {
+        setDirection(-1);
+        setCurrentIndex((prev) => (prev - 1 + PROMOTIONS.length) % PROMOTIONS.length);
+    };
+
+    const promo = PROMOTIONS[currentIndex];
+
+    const variants = {
+        enter: (dir) => ({
+            x: dir > 0 ? 50 : -50,
+            opacity: 0,
+            scale: 0.95
+        }),
+        center: {
+            x: 0,
+            opacity: 1,
+            scale: 1,
+            zIndex: 1
+        },
+        exit: (dir) => ({
+            x: dir < 0 ? 50 : -50,
+            opacity: 0,
+            scale: 0.95,
+            zIndex: 0
+        })
+    };
+
     return (
-        <section className="py-20 bg-transparent relative" id="pricing">
-            <div className="container mx-auto px-4 relative z-10">
+        <section className="py-12 bg-transparent relative" id="pricing">
+            <div className="container mx-auto px-4 relative z-10 flex flex-col items-center">
                 <RevealOnScroll>
-                    <div className="max-w-4xl mx-auto glass-panel rounded-[3rem] p-0.5 relative group overflow-hidden border-brand-accent/20">
-                        {/* Animated Border/Glow */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-brand-accent/20 via-transparent to-brand-accent/5 opacity-50" />
+                    <div className="max-w-lg mx-auto relative group">
+                        {/* Navigation Arrows */}
+                        <div className="absolute inset-y-0 -left-12 -right-12 hidden md:flex items-center justify-between pointer-events-none z-20">
+                            <motion.button
+                                whileHover={{ scale: 1.1, x: -3 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={prevSlide}
+                                className="pointer-events-auto w-9 h-9 rounded-full glass-panel flex items-center justify-center text-white/40 hover:text-brand-accent hover:border-brand-accent/50 transition-all shadow-xl emerald-glow"
+                            >
+                                <ChevronLeft size={18} />
+                            </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.1, x: 3 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={nextSlide}
+                                className="pointer-events-auto w-9 h-9 rounded-full glass-panel flex items-center justify-center text-white/40 hover:text-brand-accent hover:border-brand-accent/50 transition-all shadow-xl emerald-glow"
+                            >
+                                <ChevronRight size={18} />
+                            </motion.button>
+                        </div>
 
-                        <div className="bg-brand-surface/90 backdrop-blur-3xl rounded-[2.9rem] p-10 md:p-14 text-center relative overflow-hidden">
-                            {/* Decorative Background Symbol */}
-                            <div className="absolute -top-20 -right-20 w-64 h-64 bg-brand-accent/5 rounded-full blur-[100px] pointer-events-none" />
-
+                        <AnimatePresence initial={false} custom={direction} mode="wait">
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                className="inline-flex items-center gap-3 px-6 py-3 bg-brand-accent/10 text-brand-accent rounded-full text-[10px] font-black uppercase tracking-[0.3em] mb-12 border border-brand-accent/20"
+                                key={currentIndex}
+                                custom={direction}
+                                variants={variants}
+                                initial="enter"
+                                animate="center"
+                                exit="exit"
+                                transition={{
+                                    x: { type: "spring", stiffness: 400, damping: 35 },
+                                    opacity: { duration: 0.2 },
+                                    scale: { duration: 0.2 }
+                                }}
+                                className="glass-panel rounded-[2rem] p-0.5 relative overflow-hidden border-brand-accent/20 shadow-emerald-glow"
                             >
-                                <Sparkles size={14} />
-                                Promoção de Lançamento
-                            </motion.div>
+                                <div className="bg-brand-surface/90 backdrop-blur-3xl rounded-[1.9rem] p-8 md:p-10 text-center relative overflow-hidden">
+                                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-accent/5 rounded-full blur-[60px] pointer-events-none" />
 
-                            <h2 className="text-4xl md:text-5xl font-heading mb-8 tracking-tighter leading-none">
-                                EDIÇÃO <span className="text-brand-accent">PREMIUM</span>
-                            </h2>
-
-                            <p className="text-slate-400 text-lg mb-16 max-w-xl mx-auto font-light leading-relaxed">
-                                Transforme seu conteúdo bruto em uma obra-prima de alta performance. Otimizado para retenção e impacto visual.
-                            </p>
-
-                            <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 mb-16">
-                                <div className="text-center md:text-right">
-                                    <span className="text-white/20 text-xl font-light line-through block">R$ 150</span>
-                                    <span className="text-white/40 text-xs font-bold uppercase tracking-widest">Preço Original</span>
-                                </div>
-
-                                <div className="h-px w-12 bg-white/10 hidden md:block" />
-
-                                <div className="flex items-center gap-2">
-                                    <span className="text-brand-accent font-heading text-2xl self-start mt-2">R$</span>
-                                    <span className="text-7xl md:text-8xl font-heading text-white tracking-tighter">70</span>
-                                    <span className="text-white/40 font-heading text-xl self-end mb-4">,00</span>
-                                </div>
-                            </div>
-
-                            <div className="grid md:grid-cols-2 gap-8 text-left max-w-2xl mx-auto mb-20 border-t border-white/5 pt-16">
-                                {[
-                                    "Vídeos de até 2 minutos",
-                                    "Color Grading Profissional",
-                                    "Legendas Estilizadas V2",
-                                    "Sound Design Imersivo",
-                                    "Mixagem de Áudio Master",
-                                    "Exportação em 4K HDR"
-                                ].map((feature, i) => (
-                                    <div key={i} className="flex items-center gap-5 group/item">
-                                        <div className="w-6 h-6 rounded-lg bg-brand-accent/10 flex items-center justify-center text-brand-accent border border-brand-accent/20 group-hover/item:bg-brand-accent group-hover:text-brand-dark transition-all duration-300">
-                                            <Check size={14} />
-                                        </div>
-                                        <span className="text-white/60 text-xs font-bold uppercase tracking-widest">{feature}</span>
+                                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-accent/10 text-brand-accent rounded-full text-[8px] font-black uppercase tracking-[0.3em] mb-6 border border-brand-accent/20">
+                                        <Sparkles size={10} />
+                                        {promo.badge}
                                     </div>
-                                ))}
-                            </div>
 
-                            <motion.a
-                                href="https://wa.me/5588996126717?text=Opa,%20tenho%20interesse%20na%20promoção%20de%20edição%20por%2070%20reais!"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                whileHover={{ scale: 1.02, y: -5 }}
-                                whileTap={{ scale: 0.98 }}
-                                className="inline-flex items-center justify-center gap-4 w-full md:w-auto px-12 py-5 bg-brand-accent text-brand-dark font-heading text-base rounded-2xl shadow-2xl shadow-brand-accent/20 hover:shadow-brand-accent/40 transition-all"
-                            >
-                                <span>RESERVAR VAGA</span>
-                                <motion.div
-                                    animate={{ x: [0, 5, 0] }}
-                                    transition={{ repeat: Infinity, duration: 1.5 }}
-                                >
-                                    <Sparkles size={24} />
-                                </motion.div>
-                            </motion.a>
+                                    <h2 className="text-2xl md:text-3xl font-heading mb-4 tracking-tighter leading-none">
+                                        {promo.title.split(' ')[0]} <span className="text-brand-accent">{promo.title.split(' ').slice(1).join(' ')}</span>
+                                    </h2>
+
+                                    <p className="text-white/40 text-[11px] mb-8 max-w-[240px] mx-auto font-medium leading-relaxed">
+                                        {promo.description}
+                                    </p>
+
+                                    <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-8">
+                                        <div className="text-center md:text-right">
+                                            <span className="text-white/20 text-base font-light line-through block">R$ {promo.originalPrice}</span>
+                                            <span className="text-white/40 text-[8px] font-bold uppercase tracking-widest">Original</span>
+                                        </div>
+                                        <div className="h-px w-6 bg-white/10 hidden md:block" />
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-brand-accent font-heading text-lg self-start mt-1">R$</span>
+                                            <span className="text-5xl md:text-6xl font-heading text-white tracking-tighter">{promo.price}</span>
+                                            <span className="text-white/40 font-heading text-base self-end mb-3">,00</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 gap-3.5 text-left max-w-[240px] mx-auto mb-10 border-t border-white/5 pt-8">
+                                        {promo.features.map((feature, i) => (
+                                            <div key={i} className="flex items-center gap-3 group/item">
+                                                <div className="w-4 h-4 rounded-md bg-brand-accent/10 flex items-center justify-center text-brand-accent border border-brand-accent/20 group-hover/item:bg-brand-accent group-hover:text-brand-dark transition-all duration-300">
+                                                    <Check size={10} />
+                                                </div>
+                                                <span className="text-white/60 text-[8px] font-bold uppercase tracking-widest">{feature}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <motion.a
+                                        href={`https://wa.me/5588996126717?text=${encodeURIComponent(promo.whatsapp)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        whileHover={{ scale: 1.02, y: -3 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="inline-flex items-center justify-center gap-3 w-full px-8 py-3.5 bg-brand-accent text-brand-dark font-heading text-[11px] rounded-xl shadow-xl shadow-brand-accent/10 hover:shadow-brand-accent/30 transition-all font-black uppercase tracking-widest"
+                                    >
+                                        <span>RESERVAR VAGA</span>
+                                        <Sparkles size={14} className="animate-pulse" />
+                                    </motion.a>
+                                </div>
+                            </motion.div>
+                        </AnimatePresence>
+
+                        {/* Pagination Dots */}
+                        <div className="flex justify-center gap-2 mt-6">
+                            {PROMOTIONS.map((_, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => {
+                                        setDirection(i > currentIndex ? 1 : -1);
+                                        setCurrentIndex(i);
+                                    }}
+                                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === currentIndex ? 'bg-brand-accent w-5' : 'bg-white/10 hover:bg-white/20'}`}
+                                />
+                            ))}
                         </div>
                     </div>
                 </RevealOnScroll>
