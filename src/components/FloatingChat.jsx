@@ -6,12 +6,13 @@ import { MessageSquareText } from 'lucide-react';
 const FloatingChat = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-    const widgetRef = useRef(null);
+    const mouseX = useMotionValue(0);
+    const mouseY = useMotionValue(0);
 
     useEffect(() => {
         const handleMouseMove = (e) => {
-            setMousePos({ x: e.clientX, y: e.clientY });
+            mouseX.set(e.clientX);
+            mouseY.set(e.clientY);
         };
         window.addEventListener('mousemove', handleMouseMove);
         return () => window.removeEventListener('mousemove', handleMouseMove);
@@ -22,29 +23,30 @@ const FloatingChat = () => {
 
     const Eye = () => {
         const eyeRef = useRef(null);
-        const [offset, setOffset] = useState({ x: 0, y: 0 });
+        const pupilX = useSpring(0, { stiffness: 400, damping: 30 });
+        const pupilY = useSpring(0, { stiffness: 400, damping: 30 });
 
         useEffect(() => {
-            if (!eyeRef.current) return;
+            return mouseX.on("change", (latestX) => {
+                if (!eyeRef.current) return;
+                const rect = eyeRef.current.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
 
-            const rect = eyeRef.current.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
+                const dx = latestX - centerX;
+                const dy = mouseY.get() - centerY;
+                const angle = Math.atan2(dy, dx);
+                const distance = Math.min(5, Math.hypot(dx, dy) / 15);
 
-            const angle = Math.atan2(mousePos.y - centerY, mousePos.x - centerX);
-            const distance = Math.min(4, Math.hypot(mousePos.x - centerX, mousePos.y - centerY) / 20);
-
-            setOffset({
-                x: Math.cos(angle) * distance,
-                y: Math.sin(angle) * distance
+                pupilX.set(Math.cos(angle) * distance);
+                pupilY.set(Math.sin(angle) * distance);
             });
-        }, [mousePos]);
+        }, []);
 
         return (
-            <div ref={eyeRef} className="w-2.5 h-2.5 bg-white rounded-full relative flex items-center justify-center">
+            <div ref={eyeRef} className="w-2.5 h-2.5 bg-white rounded-full relative flex items-center justify-center border-[0.5px] border-black/10">
                 <motion.div
-                    animate={{ x: offset.x, y: offset.y }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    style={{ x: pupilX, y: pupilY }}
                     className="w-1.5 h-1.5 bg-brand-dark rounded-full"
                 />
             </div>
