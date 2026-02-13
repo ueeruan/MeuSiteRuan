@@ -87,30 +87,32 @@ const Navbar = () => {
                 <AnimatePresence>
                     {isMobileMenuOpen && (
                         <motion.div
-                            initial={{ opacity: 0, clipPath: "circle(0% at 100% 0%)" }}
-                            animate={{ opacity: 1, clipPath: "circle(150% at 100% 0%)" }}
-                            exit={{ opacity: 0, clipPath: "circle(0% at 100% 0%)" }}
-                            transition={{ duration: 0.5, ease: "easeInOut" }}
-                            className="fixed inset-0 bg-brand-dark/95 backdrop-blur-2xl flex flex-col items-center justify-center gap-8 md:hidden z-40"
+                            initial={{ opacity: 0, x: '100%' }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: '100%' }}
+                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                            className="fixed inset-0 bg-[#020617] flex flex-col items-center justify-center gap-10 md:hidden z-[100]"
                         >
-                            {navLinks.map((link, index) => (
-                                <motion.a
-                                    key={link.name}
-                                    href={link.href}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1 + index * 0.1 }}
-                                    target={link.isNewTab ? "_blank" : "_self"}
-                                    rel={link.isNewTab ? "noopener noreferrer" : ""}
-                                    className={`text-2xl font-bold tracking-tight transition-all active:scale-95 ${link.isSpecial
-                                        ? "text-transparent bg-clip-text bg-gradient-to-r from-brand-accent to-purple-500 scale-110"
-                                        : "text-white/80 hover:text-white"
-                                        } ${link.isNewTab ? "italic text-brand-accent/80" : ""}`}
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                >
-                                    {link.name}
-                                </motion.a>
-                            ))}
+                            <div className="flex flex-col items-center gap-8 w-full px-6">
+                                {navLinks.map((link, index) => (
+                                    <motion.a
+                                        key={link.name}
+                                        href={link.href}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.1 + index * 0.05 }}
+                                        target={link.isNewTab ? "_blank" : "_self"}
+                                        rel={link.isNewTab ? "noopener noreferrer" : ""}
+                                        className={`text-2xl font-bold tracking-tight text-center py-2 w-full transition-all active:scale-95 ${link.isSpecial
+                                            ? "text-brand-accent bg-brand-accent/10 rounded-xl"
+                                            : "text-white/90 hover:text-white"
+                                            } ${link.isNewTab ? "text-lg text-brand-accent/60 italic underline decoration-brand-accent/30" : ""}`}
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                        {link.name}
+                                    </motion.a>
+                                ))}
+                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
