@@ -29,11 +29,57 @@ const Tools = () => {
                     </div>
                 </RevealOnScroll>
 
+                {/* --- TIKTOK SECTION --- */}
+                <div className="mb-24">
+                    <RevealOnScroll>
+                        <h3 className="text-2xl font-heading tracking-widest text-white/50 mb-10 border-b border-white/10 pb-4">
+                            <span className="text-brand-accent">01.</span> REDES SOCIAIS
+                        </h3>
+                    </RevealOnScroll>
+
+                    <div className="max-w-4xl mx-auto">
+                        <RevealOnScroll>
+                            <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] flex flex-col md:flex-row items-center gap-8 border-brand-accent/10 relative overflow-hidden group hover:border-brand-accent/30 transition-all duration-500">
+                                <div className="absolute inset-0 bg-brand-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+
+                                <div className="w-24 h-24 rounded-full bg-brand-accent/10 flex items-center justify-center text-brand-accent group-hover:scale-110 transition-transform duration-500 flex-shrink-0">
+                                    <svg className="w-10 h-10" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+                                    </svg>
+                                </div>
+
+                                <div className="flex-1 text-center md:text-left relative z-10">
+                                    <div className="flex flex-col md:flex-row items-center md:items-end gap-3 mb-4">
+                                        <h3 className="text-3xl md:text-4xl font-heading text-white tracking-tighter">RuanziTwo</h3>
+                                        <span className="px-3 py-1 rounded-full bg-brand-accent/10 text-brand-accent text-[10px] font-bold uppercase tracking-widest border border-brand-accent/10 mb-1">TikTok Oficial</span>
+                                    </div>
+                                    <p className="text-slate-400 font-light mb-8 leading-relaxed">
+                                        Acompanhe meus trabalhos mais recentes, tutoriais rápidos e bastidores exclusivos das produções. Conteúdo novo toda semana!
+                                    </p>
+                                    <motion.a
+                                        href="https://tiktok.com/@ruanzitwo"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="inline-flex items-center gap-3 px-8 py-4 bg-brand-accent text-brand-dark font-heading text-sm rounded-xl hover:shadow-lg hover:shadow-brand-accent/20 transition-all font-bold"
+                                    >
+                                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+                                        </svg>
+                                        <span>SEGUIR NO TIKTOK</span>
+                                    </motion.a>
+                                </div>
+                            </div>
+                        </RevealOnScroll>
+                    </div>
+                </div>
+
                 {/* --- PLUGINS SECTION --- */}
                 <div className="mb-24">
                     <RevealOnScroll>
                         <h3 className="text-2xl font-heading tracking-widest text-white/50 mb-10 border-b border-white/10 pb-4">
-                            <span className="text-brand-accent">01.</span> PLUGINS & EXTENSIONS
+                            <span className="text-brand-accent">02.</span> PLUGINS & EXTENSIONS
                         </h3>
                     </RevealOnScroll>
 
@@ -89,23 +135,7 @@ const Tools = () => {
 
 
 
-                {/* --- CREDITS --- */}
-                <RevealOnScroll>
-                    <div className="text-center py-12 border-t border-white/5 flex flex-col items-center gap-4">
-                        <p className="text-white/20 text-xs font-mono tracking-widest uppercase">
-                            Credits to <span className="text-brand-accent font-bold">FaxyEmpire</span>
-                        </p>
-                        <a
-                            href="https://discord.gg/faxyempire"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#5865F2]/10 text-[#5865F2] hover:bg-[#5865F2] hover:text-white transition-all text-xs font-bold tracking-widest uppercase"
-                        >
-                            <Disc size={14} />
-                            <span>Join Discord</span>
-                        </a>
-                    </div>
-                </RevealOnScroll>
+
 
             </div>
         </section>
