@@ -81,7 +81,7 @@ const Navbar = () => {
                                     onClick={(e) => handleNavClick(e, link.href)}
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
-                                    className="ml-4 relative overflow-hidden px-6 py-2.5 rounded-full bg-gradient-to-r from-brand-accent to-purple-600 text-white font-bold text-sm tracking-wider shadow-lg shadow-brand-accent/25 hover:shadow-brand-accent/40 transition-all border border-brand-accent/20"
+                                    className="ml-4 relative overflow-hidden px-6 py-2.5 rounded-full bg-gradient-to-r from-brand-accent to-red-600 text-white font-bold text-sm tracking-wider shadow-lg shadow-brand-accent/25 hover:shadow-brand-accent/40 transition-all border border-brand-accent/20"
                                 >
                                     <div className="absolute inset-0 animate-shimmer mix-blend-overlay"></div>
                                     {link.name}

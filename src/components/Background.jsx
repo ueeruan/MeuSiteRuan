@@ -83,7 +83,7 @@ const Background = () => {
 
             draw() {
                 ctx.globalAlpha = this.opacity;
-                ctx.fillStyle = '#ffffff';
+                ctx.fillStyle = '#DC143C'; // Crimson dots
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
