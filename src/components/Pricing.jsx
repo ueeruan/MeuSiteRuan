@@ -5,6 +5,23 @@ import { useState } from 'react';
 
 const PROMOTIONS = [
     {
+        id: 'mensal',
+        title: 'PROMO MENSAL',
+        badge: '🔥 OFERTA IMPERDÍVEL 🔥',
+        description: 'A solução definitiva. 2 vídeos por dia, todos os dias, por um mês inteiro.',
+        originalPrice: '3.000',
+        price: '1.500',
+        features: [
+            "2 Vídeos/dia (Seg-Sex)",
+            "Duração até 3 min",
+            "Edição Completa (Cortes/Legendas)",
+            "Sound Design & Mix",
+            "Thumbnails Inclusas",
+            "Prioridade Total na Fila"
+        ],
+        whatsapp: "Opa! Quero a PROMO MENSAL de R$ 1.500 agora!"
+    },
+    {
         id: 'premium',
         title: 'EDIÇÃO PREMIUM',
         badge: 'Promoção de Lançamento',
@@ -37,23 +54,6 @@ const PROMOTIONS = [
             "Exportação em 4K HDR"
         ],
         whatsapp: "Opa, quero reservar o pack de 5 vídeos por 500 reais!"
-    },
-    {
-        id: 'mensal',
-        title: 'PROMO MENSAL',
-        badge: '🔥 OFERTA IMPERDÍVEL 🔥',
-        description: 'A solução definitiva. 2 vídeos por dia, todos os dias, por um mês inteiro.',
-        originalPrice: '3.000',
-        price: '1.500',
-        features: [
-            "2 Vídeos/dia (Seg-Sex)",
-            "Duração até 3 min",
-            "Edição Completa (Cortes/Legendas)",
-            "Sound Design & Mix",
-            "Thumbnails Inclusas",
-            "Prioridade Total na Fila"
-        ],
-        whatsapp: "Opa! Quero a PROMO MENSAL de R$ 1.500 agora!"
     },
     {
         id: 'combo',
@@ -148,17 +148,14 @@ const Pricing = () => {
                                     opacity: { duration: 0.2 },
                                     scale: { duration: 0.2 }
                                 }}
-                                className="glass-panel rounded-[2rem] p-0.5 relative overflow-hidden border-brand-accent/20 shadow-emerald-glow"
+                                className={`rounded-[2rem] p-[2px] relative overflow-hidden transition-all duration-300 ${promo.id === 'mensal' ? 'shadow-2xl shadow-blue-500/20' : 'glass-panel border-brand-accent/20 shadow-emerald-glow'}`}
                             >
-                                <div className="bg-brand-surface/90 backdrop-blur-3xl rounded-[1.9rem] p-8 md:p-10 text-center relative overflow-hidden">
+                                {/* Animated Border Glow for Promo Mensal */}
+                                {promo.id === 'mensal' && (
+                                    <div className="absolute inset-[-100%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_0deg,#ff4545,#00ff99,#006aff,#ff0095,#ff4545)] opacity-100" />
+                                )}
 
-                                    {/* Monthly Promo Glow Effect */}
-                                    {promo.id === 'mensal' && (
-                                        <>
-                                            <div className="absolute -inset-[200%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_0deg,#ff4545,#00ff99,#006aff,#ff0095,#ff4545)] opacity-20 blur-2xl" />
-                                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-brand-surface/50 to-brand-surface z-0" />
-                                        </>
-                                    )}
+                                <div className="bg-[#0d121f] rounded-[1.9rem] p-8 md:p-10 text-center relative overflow-hidden h-full">
 
                                     <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-accent/5 rounded-full blur-[60px] pointer-events-none z-10" />
 
