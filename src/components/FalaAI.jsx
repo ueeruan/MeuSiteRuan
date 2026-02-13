@@ -1,19 +1,49 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAIResponse, transcribeAudio, AE_EXPERT_PROMPT } from '../services/ai';
-import { Send, MessageSquare, CheckCircle, Sparkles, Mic, Square, Play, Pause, Trash2, Terminal, Code, Download, Package } from 'lucide-react';
+import { Send, MessageSquare, CheckCircle, Sparkles, Mic, Square, Play, Pause, Trash2, Terminal, Code, Download, Package, FileCode, Monitor, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import JSZip from 'jszip';
 
+// --- Simple Syntax Highlighter ---
+const CodeBlock = ({ code, language }) => {
+    // Basic syntax highlighting logic
+    const highlight = (text) => {
+        if (!text) return "";
+        let html = text
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+            .replace(/(".*?")/g, '<span class="text-green-400">$1</span>')
+            .replace(/\b(const|let|var|function|return|if|else|for|while|import|export|from|async|await|try|catch|new|this|class)\b/g, '<span class="text-purple-400 font-bold">$1</span>')
+            .replace(/\b(true|false|null|undefined)\b/g, '<span class="text-orange-400">$1</span>')
+            .replace(/\b(console|document|window|Math|JSON|navigator|alert)\b/g, '<span class="text-yellow-400">$1</span>')
+            .replace(/\/\/.*$/gm, '<span class="text-gray-500 italic">$&</span>'); // Comments
+        return html;
+    };
+
+    return (
+        <pre className="font-mono text-[11px] leading-relaxed p-4 bg-[#0d1117] text-gray-300 overflow-auto h-full custom-scrollbar">
+            <code dangerouslySetInnerHTML={{ __html: highlight(code) }} />
+        </pre>
+    );
+};
+
 const FalaAI = () => {
+    // Chat State
     const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const [isFinished, setIsFinished] = useState(false);
+
+    // Audio State
     const [isRecording, setIsRecording] = useState(false);
     const [audioPreviewUrl, setAudioPreviewUrl] = useState(null);
     const [recordedBlob, setRecordedBlob] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
+
+    // IDE State
     const [extensionData, setExtensionData] = useState(null);
+    const [activeFile, setActiveFile] = useState(null);
+    const [showPreview, setShowPreview] = useState(true); // Toggle between Code/Preview if needed
+
     const chatEndRef = useRef(null);
     const mediaRecorderRef = useRef(null);
     const audioChunksRef = useRef([]);
@@ -29,43 +59,41 @@ const FalaAI = () => {
         }
     }, []);
 
-    useEffect(scrollToBottom, [messages, isTyping, extensionData]);
+    useEffect(scrollToBottom, [messages, isTyping]);
+
+    // Set initial active file when extension data loads
+    useEffect(() => {
+        if (extensionData && extensionData.files && extensionData.files.length > 0) {
+            setActiveFile(extensionData.files[0]);
+        }
+    }, [extensionData]);
 
     const initChat = async () => {
         setIsTyping(true);
-        const welcome = "Fala aí! Sou o especialista em After Effects e automação. Quer validar uma ideia ou **CRIAR UMA EXTENSÃO** agora mesmo? Me conta o que você precisa! 💻📽️";
+        const welcome = "Dev Mode Ativado. 💻\nSou seu **Engenheiro de Extensões**. Posso criar painéis CEP, scripts JSX ou tirar dúvidas de CSS/UI.\n\nO que vamos codar hoje?";
         setTimeout(() => {
             setMessages([{ role: 'assistant', content: welcome, id: Date.now() }]);
             setIsTyping(false);
         }, 1000);
     };
 
+    // --- Audio Logic (Preserved) ---
     const startRecording = async () => {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
-            });
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
             const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
             mediaRecorderRef.current = new MediaRecorder(stream, { mimeType, audioBitsPerSecond: 128000 });
             audioChunksRef.current = [];
-            mediaRecorderRef.current.ondataavailable = (event) => {
-                if (event.data.size > 0) audioChunksRef.current.push(event.data);
-            };
+            mediaRecorderRef.current.ondataavailable = (event) => { if (event.data.size > 0) audioChunksRef.current.push(event.data); };
             mediaRecorderRef.current.onstop = async () => {
                 const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
-                if (audioBlob.size < 500) {
-                    setMessages(prev => [...prev, { role: 'assistant', content: "Ops, não captei seu áudio. Pode repetir?", id: Date.now() }]);
-                    return;
-                }
-                const url = URL.createObjectURL(audioBlob);
-                setAudioPreviewUrl(url);
+                if (audioBlob.size < 500) return;
+                setAudioPreviewUrl(URL.createObjectURL(audioBlob));
                 setRecordedBlob(audioBlob);
             };
             mediaRecorderRef.current.start();
             setIsRecording(true);
-        } catch (err) {
-            alert("Erro ao acessar microfone.");
-        }
+        } catch (err) { alert("Erro no microfone."); }
     };
 
     const stopRecording = () => {
@@ -83,10 +111,9 @@ const FalaAI = () => {
         const blobToSend = recordedBlob;
         discardAudio();
         const transcription = await transcribeAudio(blobToSend, extension);
-        if (transcription && transcription.trim().length > 2) {
-            handleSend(transcription);
-        } else {
-            setMessages(prev => [...prev, { role: 'assistant', content: "Não entendi o áudio. Pode tentar novamente?", id: Date.now() }]);
+        if (transcription && transcription.trim().length > 2) handleSend(transcription);
+        else {
+            setMessages(prev => [...prev, { role: 'assistant', content: "Não entendi, tente novamente.", id: Date.now() }]);
             setIsTyping(false);
         }
     };
@@ -105,6 +132,7 @@ const FalaAI = () => {
         setIsPlaying(!isPlaying);
     };
 
+    // --- Core Logic ---
     const downloadExtension = async () => {
         if (!extensionData) return;
         const zip = new JSZip();
@@ -118,7 +146,6 @@ const FalaAI = () => {
         a.download = `${extensionData.name.replace(/\s+/g, '_') || "extension"}.zip`;
         a.click();
         URL.revokeObjectURL(url);
-        setMessages(prev => [...prev, { role: 'assistant', content: "Download iniciado! Instale via ZXP Installer ou coloque na pasta CEP/extensions. 🚀", id: Date.now() }]);
     };
 
     const handleSend = async (text) => {
@@ -126,26 +153,26 @@ const FalaAI = () => {
         const val = text.trim();
         const userMsg = { role: 'user', content: val, id: Date.now() };
 
-        // Finalization keywords for AE Expert
+        // Check for Consultancy Handoff
         const lowerInput = val.toLowerCase();
         const shouldFinalize =
             lowerInput.includes('enviar para o juan') ||
-            lowerInput.includes('enviar para juan') ||
-            lowerInput.includes('falar com o juan') ||
             lowerInput.includes('finalizar') ||
-            lowerInput.includes('concluir');
+            lowerInput.includes('falar com o juan');
 
         if (shouldFinalize) {
             setMessages(prev => [...prev, userMsg, {
                 role: 'assistant',
-                content: "Briefing técnico gerado! Vou te levar agora para o WhatsApp do Juan para darmos início ao desenvolvimento dessa ferramenta. 🚀👨‍💻",
+                content: "Entendido! Gerando o briefing técnico e te encaminhando para o WhatsApp do Juan... 🚀👨‍💻",
                 id: Date.now() + 1
             }]);
             setInputValue('');
             setIsTyping(false);
             setTimeout(() => {
-                const link = generateWhatsAppLink();
-                window.location.href = link;
+                const phone = "5588996126717";
+                const history = [...messages, userMsg].map(m => `*${m.role === 'user' ? 'Ideia' : 'AI'}:* ${m.content}`).join('\n\n');
+                const message = `*Briefing Técnico (via FalaAI IDE)*\n\n${history}\n\n_Enviado pelo Agente_`;
+                window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
                 setIsFinished(true);
             }, 2500);
             return;
@@ -176,131 +203,150 @@ const FalaAI = () => {
                     }]);
                 } catch (e) {
                     console.error("JSON Parse Error", e);
-                    setMessages(prev => [...prev, { role: 'assistant', content: aiResponse, id: Date.now() }]);
+                    setMessages(prev => [...prev, { role: 'assistant', content: "Erro ao gerar código.", id: Date.now() }]);
                 }
             } else {
                 setMessages(prev => [...prev, { role: 'assistant', content: aiResponse, id: Date.now() }]);
             }
-
         } catch (err) {
-            setMessages(prev => [...prev, { role: 'assistant', content: "Erro de conexão técnico. Tente novamente.", id: Date.now() }]);
+            setMessages(prev => [...prev, { role: 'assistant', content: "Erro de conexão.", id: Date.now() }]);
         } finally {
             setIsTyping(false);
         }
     };
 
-    const generateWhatsAppLink = () => {
-        const phone = "5588996126717";
-        const history = messages.map(m => `*${m.role === 'user' ? 'Ideia' : 'Especialista'}:* ${m.content}`).join('\n\n');
-        const message = `*Briefing Técnico AE - FalaAI*\n\n--- DISCUSSÃO ---\n\n${history}\n\n--- FIM ---\n_Enviado pelo FalaAI_`;
-        return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-    };
-
     return (
-        <div className="max-w-xl mx-auto glass-panel rounded-[2rem] overflow-hidden flex flex-col h-[520px] border-blue-500/10 shadow-blue-glow relative">
-            <div className="absolute top-0 left-0 w-full h-1 bg-white/5 z-20">
-                <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${Math.min((messages.length / 10) * 100, 100)}%` }}
-                    className="h-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-500"
-                />
-            </div>
+        <div className="w-full h-full glass-panel rounded-[2rem] overflow-hidden flex flex-col lg:flex-row border-blue-500/10 shadow-blue-glow relative">
 
-            <div className="p-5 border-b border-white/5 bg-white/5 flex items-center gap-4">
-                <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                    <Code size={18} />
+            {/* --- LEFT PANEL: CHAT (35%) --- */}
+            <div className="w-full lg:w-[35%] flex flex-col border-r border-white/5 bg-[#0d1117]/50 lg:h-full h-1/2">
+                {/* Chat Header */}
+                <div className="p-4 border-b border-white/5 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500">
+                            <Terminal size={16} />
+                        </div>
+                        <span className="text-xs font-bold tracking-widest text-white/80">CHAT LOG</span>
+                    </div>
+                    <div className="flex gap-2">
+                        <div className="w-2 h-2 rounded-full bg-red-500/50" />
+                        <div className="w-2 h-2 rounded-full bg-yellow-500/50" />
+                        <div className="w-2 h-2 rounded-full bg-green-500/50" />
+                    </div>
                 </div>
-                <div>
-                    <h3 className="font-heading text-xs tracking-widest uppercase">FALA AI - After Effects</h3>
-                    <span className="text-[8px] text-blue-400 font-black uppercase tracking-widest animate-pulse">Especialista Online</span>
-                </div>
-            </div>
 
-            <div className="flex-grow overflow-y-auto p-5 space-y-6 custom-scrollbar">
-                <AnimatePresence>
+                {/* Messages */}
+                <div className="flex-grow overflow-y-auto p-4 space-y-4 custom-scrollbar">
                     {messages.map((msg) => (
                         <motion.div
                             key={msg.id}
-                            initial={{ opacity: 0, y: 15, scale: 0.9 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
                             className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
                         >
-                            <div className={`max-w-[85%] p-4 rounded-2xl text-[13px] leading-relaxed shadow-lg ${msg.role === 'user'
-                                ? 'bg-blue-600 text-white font-bold rounded-tr-none'
-                                : 'bg-white/5 border border-white/10 text-white/90 rounded-tl-none'}`}
-                            >
-                                {msg.content}
+                            <div className={`max-w-[90%] p-3 rounded-xl text-[12px] leading-relaxed shadow-sm ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-[#161b22] border border-white/5 text-gray-300'}`}>
+                                <code dangerouslySetInnerHTML={{ __html: msg.content.replace(/\n/g, '<br/>') }} />
                             </div>
 
                             {msg.hasDownload && extensionData && (
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    className="mt-2"
+                                <button
+                                    onClick={downloadExtension}
+                                    className="mt-2 text-[10px] flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
                                 >
-                                    <button
-                                        onClick={downloadExtension}
-                                        className="flex items-center gap-3 px-6 py-3 bg-blue-500 text-white rounded-xl shadow-blue-glow hover:scale-105 transition-all group"
-                                    >
-                                        <Package size={18} />
-                                        <div className="text-left">
-                                            <div className="text-[10px] uppercase font-black tracking-widest opacity-80">Extensão Pronta</div>
-                                            <div className="text-xs font-bold">Baixar {extensionData.name}.zip</div>
-                                        </div>
-                                        <Download size={16} className="ml-2 group-hover:translate-y-1 transition-transform" />
-                                    </button>
-                                </motion.div>
+                                    <Package size={12} /> Baixar .ZIP
+                                </button>
                             )}
                         </motion.div>
                     ))}
-                    {isTyping && (
-                        <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="flex justify-start">
-                            <div className="bg-white/5 border border-white/10 px-4 py-3 rounded-2xl rounded-tl-none flex gap-3 items-center">
-                                <span className="text-[10px] text-blue-400/60 font-bold uppercase tracking-widest">
-                                    {isRecording ? "Gravando..." : "Compilando..."}
-                                </span>
-                                <div className="flex gap-1">
-                                    <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce [animation-duration:0.6s]" />
-                                    <div className="w-1 h-1 bg-blue-500/60 rounded-full animate-bounce [animation-duration:0.6s] [animation-delay:0.2s]" />
-                                    <div className="w-1 h-1 bg-blue-500/30 rounded-full animate-bounce [animation-duration:0.6s] [animation-delay:0.4s]" />
-                                </div>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-                <div ref={chatEndRef} />
-            </div>
+                    {isTyping && <div className="text-[10px] text-gray-500 animate-pulse pl-2">AI is coding...</div>}
+                    <div ref={chatEndRef} />
+                </div>
 
-            <form onSubmit={(e) => { e.preventDefault(); handleSend(inputValue); }} className="p-4 bg-black/40 border-t border-white/5 relative">
-                <AnimatePresence mode="wait">
-                    {audioPreviewUrl ? (
-                        <div className="flex items-center gap-2 w-full">
-                            <div className="flex-grow flex items-center gap-3 bg-blue-500/5 border border-blue-500/20 rounded-xl px-4 py-2">
-                                <button type="button" onClick={togglePreviewPlayback} className="w-9 h-9 flex items-center justify-center bg-blue-500 text-white rounded-full shadow-blue-glow">
-                                    {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" translate="1" />}
+                {/* Input */}
+                <form onSubmit={(e) => { e.preventDefault(); handleSend(inputValue); }} className="p-3 border-t border-white/5 bg-[#0d1117]">
+                    <AnimatePresence mode="wait">
+                        {audioPreviewUrl ? (
+                            <div className="flex items-center gap-2 bg-blue-500/5 border border-blue-500/20 rounded-lg p-2">
+                                <button type="button" onClick={togglePreviewPlayback} className="p-2 text-blue-500 hover:bg-blue-500/10 rounded-full">
+                                    {isPlaying ? <Pause size={14} /> : <Play size={14} />}
                                 </button>
                                 <audio ref={audioRef} src={audioPreviewUrl} onEnded={() => setIsPlaying(false)} className="hidden" />
-                                <div className="flex-grow text-[9px] text-white/40">Gravação de voz pronta</div>
+                                <div className="flex-grow text-[10px] text-blue-300">Gravação pronta</div>
+                                <button type="button" onClick={discardAudio} className="p-2 text-red-400 hover:bg-red-500/10 rounded-full"><Trash2 size={14} /></button>
+                                <button type="button" onClick={confirmAudio} className="p-2 text-green-400 hover:bg-green-500/10 rounded-full"><CheckCircle size={14} /></button>
                             </div>
-                            <button type="button" onClick={discardAudio} className="p-3.5 bg-white/5 border border-white/10 text-white/60 rounded-xl hover:text-red-500 transition-all"><Trash2 size={16} /></button>
-                            <button type="button" onClick={confirmAudio} className="p-3.5 bg-blue-500 text-white rounded-xl shadow-blue-glow"><CheckCircle size={16} /></button>
+                        ) : (
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    value={inputValue}
+                                    onChange={(e) => setInputValue(e.target.value)}
+                                    placeholder="Comando..."
+                                    className="flex-grow bg-[#161b22] border border-white/5 rounded-lg py-2.5 px-3 text-[12px] text-gray-300 focus:outline-none focus:border-blue-500/50 font-mono"
+                                    disabled={isTyping || isRecording}
+                                />
+                                <button type="submit" disabled={!inputValue.trim()} className="p-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors"><Send size={14} /></button>
+                                <button type="button" onClick={isRecording ? stopRecording : startRecording} className={`p-2.5 rounded-lg transition-colors ${isRecording ? 'bg-red-500/20 text-red-500' : 'bg-[#161b22] text-gray-400 hover:text-white'}`}>{isRecording ? <Square size={14} fill="currentColor" /> : <Mic size={14} />}</button>
+                            </div>
+                        )}
+                    </AnimatePresence>
+                </form>
+            </div>
+
+            {/* --- RIGHT PANEL: PREVIEW (65%) --- */}
+            <div className="w-full lg:w-[65%] flex flex-col bg-[#0d1117] lg:h-full h-1/2 relative">
+                {!extensionData ? (
+                    <div className="h-full flex flex-col items-center justify-center opacity-30">
+                        <Monitor size={48} className="text-blue-500 mb-4" />
+                        <p className="text-white font-mono text-sm">AGUARDANDO PROJETO...</p>
+                    </div>
+                ) : (
+                    <>
+                        {/* File Tabs */}
+                        <div className="flex items-center overflow-x-auto border-b border-white/5 bg-[#010409]">
+                            {extensionData.files.map((file, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => setActiveFile(file)}
+                                    className={`px-4 py-3 flex items-center gap-2 text-[11px] font-mono border-r border-white/5 transition-colors whitespace-nowrap
+                                        ${activeFile?.path === file.path ? 'bg-[#0d1117] text-blue-400 border-t-2 border-t-blue-500' : 'text-gray-500 hover:text-gray-300 hover:bg-[#161b22]'}
+                                    `}
+                                >
+                                    <FileCode size={12} />
+                                    {file.path}
+                                </button>
+                            ))}
                         </div>
-                    ) : (
-                        <div className="relative flex items-center gap-2 w-full">
-                            <input
-                                type="text"
-                                value={inputValue}
-                                onChange={(e) => setInputValue(e.target.value)}
-                                placeholder={isFinished ? "Briefing enviado" : (isRecording ? "Captando..." : "Explique sua ideia de ferramenta...")}
-                                disabled={isFinished || isTyping || isRecording}
-                                className="flex-grow bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-[13px] focus:outline-none focus:border-blue-500/50 text-white"
-                            />
-                            <button type="submit" disabled={!inputValue.trim() || isTyping || isFinished || isRecording} className="p-3 bg-blue-500 text-white rounded-xl hover:scale-105 transition-all"><Send size={16} /></button>
-                            <button type="button" onClick={isRecording ? stopRecording : startRecording} disabled={isTyping} className={`p-3 rounded-xl transition-all ${isRecording ? 'bg-red-500 text-white' : 'bg-blue-500/10 border border-blue-500/20 text-blue-500'}`}>{isRecording ? <Square size={16} fill="currentColor" /> : <Mic size={16} />}</button>
+
+                        {/* Code Editor Area */}
+                        <div className="flex-grow relative bg-[#0d1117]">
+                            {activeFile ? (
+                                <CodeBlock code={activeFile.content} />
+                            ) : (
+                                <div className="p-10 text-center text-gray-500 text-sm">Selecione um arquivo para visualizar</div>
+                            )}
                         </div>
-                    )}
-                </AnimatePresence>
-            </form>
+
+                        {/* Action Bar */}
+                        <div className="p-4 border-t border-white/5 bg-[#161b22] flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="text-xs text-gray-400 font-mono">
+                                    <span className="text-blue-500 text-[10px]">PROJECT:</span> {extensionData.name}
+                                </div>
+                                <div className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                    READY
+                                </div>
+                            </div>
+                            <button
+                                onClick={downloadExtension}
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold tracking-wide transition-all shadow-lg hover:shadow-blue-500/20"
+                            >
+                                <Download size={14} /> DOWNLOAD ZIP
+                            </button>
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
     );
 };
