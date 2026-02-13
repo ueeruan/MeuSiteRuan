@@ -153,6 +153,32 @@ const ProposalChat = () => {
         const val = text.trim();
         const userMsg = { role: 'user', content: val, id: Date.now() };
 
+        // Detect finalization keywords
+        const lowerInput = val.toLowerCase();
+        const shouldFinalize =
+            lowerInput.includes('falar com o ruan') ||
+            lowerInput.includes('falar com ruan') ||
+            lowerInput.includes('finalizar') ||
+            lowerInput.includes('concluir') ||
+            lowerInput.includes('fechar');
+
+        if (shouldFinalize) {
+            setMessages(prev => [...prev, userMsg, {
+                role: 'assistant',
+                content: "Perfeito! Estou te redirecionando para o WhatsApp do Ruan agora mesmo para fecharmos os detalhes. Aguarde um instante... 🚀",
+                id: Date.now() + 1
+            }]);
+            setInputValue('');
+            setIsTyping(false);
+
+            setTimeout(() => {
+                const link = generateWhatsAppLink();
+                window.location.href = link;
+                setIsFinished(true);
+            }, 2500);
+            return;
+        }
+
         // 1. Update UI immediately
         setMessages(prev => [...prev, userMsg]);
         setInputValue('');
