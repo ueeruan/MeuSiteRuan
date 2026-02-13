@@ -20,29 +20,35 @@ INSTRUÇÕES:
 
 export const getAIResponse = async (messages) => {
     try {
-        const response = await fetch(API_URL, {
+        // Detect if we are on Vercel or local
+        const isVercel = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+        const API_ENDPOINT = isVercel ? '/api/chat' : API_URL;
+
+        const headers = { 'Content-Type': 'application/json' };
+        if (!isVercel) {
+            headers['Authorization'] = `Bearer ${GROQ_API_KEY}`;
+        }
+
+        const response = await fetch(API_ENDPOINT, {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${GROQ_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
+            headers: headers,
             body: JSON.stringify({
                 model: "llama-3.3-70b-versatile",
                 messages: [
                     { role: "system", content: SYSTEM_PROMPT },
                     ...messages
-                ],
-                temperature: 0.7,
-                max_tokens: 1024
+                ]
             })
         });
 
         if (!response.ok) {
-            throw new Error(`Groq API Error: ${response.statusText}`);
+            const errData = await response.json();
+            throw new Error(errData.error || `Error: ${response.statusText}`);
         }
 
         const data = await response.json();
-        return data.choices[0].message.content;
+        // Handle both direct Groq response and our local API response format
+        return isVercel ? data.choices[0].message.content : data.choices[0].message.content;
     } catch (error) {
         console.error("Error fetching AI response:", error);
         return "Desculpe, tive um pequeno problema técnico. Posso te ajudar com algo mais ou você prefere falar direto no WhatsApp?";
