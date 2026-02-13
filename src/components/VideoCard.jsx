@@ -41,8 +41,9 @@ const VideoCard = ({ project }) => {
     const getEmbedUrl = (src) => {
         const urlObj = new URL(src);
         const videoId = urlObj.pathname.split('/').pop();
-        // Desktop: autoplay, loop. Mobile: autoplay too but lazy loaded by state.
-        return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&playsinline=1&rel=0&modestbranding=1`;
+        // Desktop: clean look (controls=0). Mobile: allow manual playback (controls=1).
+        const controls = isMobile ? 1 : 0;
+        return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=${controls}&loop=1&playlist=${videoId}&playsinline=1&rel=0&modestbranding=1`;
     };
 
     return (
@@ -70,11 +71,11 @@ const VideoCard = ({ project }) => {
                     ></iframe>
 
                     {/* Gradient Overlays */}
-                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-black/40 to-transparent"></div>
+                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                    <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-black/40 to-transparent pointer-events-none"></div>
 
                     {/* Content */}
-                    <div className="absolute inset-0 flex flex-col justify-end p-8 translate-y-6 group-hover:translate-y-0 transition-transform duration-700 ease-[0.33, 1, 0.68, 1]">
+                    <div className="absolute inset-0 flex flex-col justify-end p-8 translate-y-6 group-hover:translate-y-0 transition-transform duration-700 ease-[0.33, 1, 0.68, 1] pointer-events-none">
                         <div className="flex items-center gap-2 mb-4">
                             <div className="w-6 h-[1px] bg-brand-accent group-hover:w-12 transition-all duration-700"></div>
                             <span className="text-brand-accent text-[9px] font-black uppercase tracking-[0.4em]">

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAIResponse, transcribeAudio } from '../services/ai';
-import { Send, User, MessageSquare, Clock, Calendar, CheckCircle, Sparkles, Tag, Terminal, Mic, Square } from 'lucide-react';
+import { Send, User, MessageSquare, Clock, Calendar, CheckCircle, Sparkles, Tag, Terminal, Mic, Square, Play, Pause, Trash2, X } from 'lucide-react';
 
 const ProposalChat = () => {
     const [messages, setMessages] = useState([]);
@@ -9,9 +9,13 @@ const ProposalChat = () => {
     const [isTyping, setIsTyping] = useState(false);
     const [isFinished, setIsFinished] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
+    const [audioPreviewUrl, setAudioPreviewUrl] = useState(null);
+    const [recordedBlob, setRecordedBlob] = useState(null);
+    const [isPlaying, setIsPlaying] = useState(false);
     const chatEndRef = useRef(null);
     const mediaRecorderRef = useRef(null);
     const audioChunksRef = useRef([]);
+    const audioRef = useRef(null);
 
     const scrollToBottom = () => {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -33,11 +37,16 @@ const ProposalChat = () => {
             setIsTyping(false);
         }, 1000);
     };
-
     const startRecording = async () => {
         try {
-            console.log("Iniciando gravação...");
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            console.log("Iniciando gravação com alta fidelidade...");
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: false,
+                    noiseSuppression: false,
+                    autoGainControl: false
+                }
+            });
 
             // Detect supported MIME type
             const mimeType = MediaRecorder.isTypeSupported('audio/webm')
@@ -45,7 +54,10 @@ const ProposalChat = () => {
                 : 'audio/ogg';
 
             console.log("MIME Type selecionado:", mimeType);
-            mediaRecorderRef.current = new MediaRecorder(stream, { mimeType });
+            mediaRecorderRef.current = new MediaRecorder(stream, {
+                mimeType,
+                audioBitsPerSecond: 128000
+            });
             audioChunksRef.current = [];
 
             mediaRecorderRef.current.ondataavailable = (event) => {
@@ -56,30 +68,24 @@ const ProposalChat = () => {
 
             mediaRecorderRef.current.onstop = async () => {
                 const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
-                console.log("Gravação finalizada. Blob criado:", audioBlob.size, "bytes");
+                console.log("Audio captured:", audioBlob.size, "bytes");
 
-                if (audioBlob.size < 100) {
-                    console.warn("Áudio muito curto ou vazio.");
-                    setMessages(prev => [...prev, { role: 'assistant', content: "Parece que o áudio ficou muito curto ou vazio. Pode tentar segurar o botão por mais tempo?", id: Date.now() }]);
+                if (audioBlob.size < 500) {
+                    console.warn("Audio too small, likely silence.");
+                    setMessages(prev => [...prev, { role: 'assistant', content: "Ops, não captei seu áudio. Pode segurar um pouco mais o botão?", id: Date.now() }]);
                     setIsTyping(false);
                     return;
                 }
 
-                setIsTyping(true);
-                // Groq expects a proper extension. webm/ogg work fine.
-                const extension = mimeType.split('/')[1];
-                const transcription = await transcribeAudio(audioBlob, extension);
-
-                if (transcription) {
-                    handleSend(transcription);
-                } else {
-                    setMessages(prev => [...prev, { role: 'assistant', content: "Não consegui processar seu áudio. Pode tentar escrever ou mandar outro?", id: Date.now() }]);
-                    setIsTyping(false);
-                }
+                // Instead of auto-send, set preview
+                const url = URL.createObjectURL(audioBlob);
+                setAudioPreviewUrl(url);
+                setRecordedBlob(audioBlob);
+                setIsTyping(false);
             };
 
-            // Request data every second just in case
-            mediaRecorderRef.current.start(1000);
+            // Record in a single block to avoid concatenation bugs
+            mediaRecorderRef.current.start();
             setIsRecording(true);
         } catch (err) {
             console.error("Erro ao acessar microfone:", err);
@@ -95,32 +101,88 @@ const ProposalChat = () => {
         }
     };
 
+    const confirmAudio = async () => {
+        if (!recordedBlob) return;
+
+        setIsTyping(true);
+        const mimeType = recordedBlob.type;
+        const extension = mimeType.split('/')[1];
+
+        const blobToSend = recordedBlob;
+        discardAudio(); // Clear UI immediately
+
+        const transcription = await transcribeAudio(blobToSend, extension);
+        console.log("Transcription result:", transcription);
+
+        if (transcription && transcription.trim().length > 2) {
+            const lowerT = transcription.toLowerCase().trim();
+            if ((lowerT.includes("obrigada") || lowerT.includes("obrigado")) && transcription.length < 15) {
+                setMessages(prev => [...prev, { role: 'assistant', content: "Hum, acho que o áudio saiu muito baixo ou com ruído. Pode repetir ou digitar?", id: Date.now() }]);
+                setIsTyping(false);
+                return;
+            }
+            handleSend(transcription);
+        } else {
+            setMessages(prev => [...prev, { role: 'assistant', content: "Não entendi bem o áudio... Pode tentar gravar novamente?", id: Date.now() }]);
+            setIsTyping(false);
+        }
+    };
+
+    const discardAudio = () => {
+        if (audioPreviewUrl) {
+            URL.revokeObjectURL(audioPreviewUrl);
+        }
+        setAudioPreviewUrl(null);
+        setRecordedBlob(null);
+        setIsPlaying(false);
+    };
+
+    const togglePreviewPlayback = () => {
+        if (!audioRef.current) return;
+        if (isPlaying) {
+            audioRef.current.pause();
+        } else {
+            audioRef.current.play();
+        }
+        setIsPlaying(!isPlaying);
+    };
+
     const handleSend = async (text) => {
         if (!text.trim() || isFinished) return;
 
-        const userMsg = { role: 'user', content: text, id: Date.now() };
+        const val = text.trim();
+        const userMsg = { role: 'user', content: val, id: Date.now() };
+
+        // 1. Update UI immediately
         setMessages(prev => [...prev, userMsg]);
         setInputValue('');
         setIsTyping(true);
 
-        // Functional update to avoid stale messages in async calls
-        setMessages(prev => {
-            const historyForAI = prev.map(m => ({
-                role: m.role,
-                content: m.content
-            }));
+        // 2. Prepare history for AI (using current messages + new one)
+        // We use a functional update for safety, but for the API call we can construct it based on current state
+        const historyForAI = [...messages, userMsg].map(m => ({
+            role: m.role,
+            content: m.content
+        }));
 
-            getAIResponse(historyForAI).then(aiResponse => {
-                setMessages(current => [...current, {
-                    role: 'assistant',
-                    content: aiResponse,
-                    id: Date.now()
-                }]);
-                setIsTyping(false);
-            });
-
-            return prev;
-        });
+        // 3. Call AI
+        try {
+            const aiResponse = await getAIResponse(historyForAI);
+            setMessages(prev => [...prev, {
+                role: 'assistant',
+                content: aiResponse,
+                id: Date.now()
+            }]);
+        } catch (err) {
+            console.error("AI Error:", err);
+            setMessages(prev => [...prev, {
+                role: 'assistant',
+                content: "Desculpe, tive um erro de conexão. Tente novamente.",
+                id: Date.now()
+            }]);
+        } finally {
+            setIsTyping(false);
+        }
     };
 
     const generateWhatsAppLink = () => {
@@ -241,43 +303,98 @@ const ProposalChat = () => {
                 <div ref={chatEndRef} />
             </div>
 
-            {/* Input Area */}
-            <form onSubmit={(e) => { e.preventDefault(); handleSend(inputValue); }} className="p-4 bg-black/40 border-t border-white/5">
-                <div className="relative flex items-center gap-2">
-                    <div className="relative flex-grow flex items-center">
-                        <input
-                            type="text"
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            placeholder={isFinished ? "Consultoria Finalizada" : (isRecording ? "Gravando áudio..." : "Diga algo para a IA...")}
-                            disabled={isFinished || isTyping || isRecording}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-5 pr-14 text-[13px] focus:outline-none focus:border-brand-accent/50 transition-colors disabled:opacity-50 text-white"
-                        />
-                        <button
-                            type="submit"
-                            disabled={!inputValue.trim() || isTyping || isFinished || isRecording}
-                            className="absolute right-2 p-2.5 bg-brand-accent text-brand-dark rounded-lg hover:scale-105 transition-transform disabled:opacity-50 disabled:hover:scale-100"
+            {/* Input / Preview Area */}
+            <form onSubmit={(e) => { e.preventDefault(); handleSend(inputValue); }} className="p-4 bg-black/40 border-t border-white/5 relative">
+                <AnimatePresence mode="wait">
+                    {audioPreviewUrl ? (
+                        <motion.div
+                            key="audio-preview"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="flex items-center gap-2 w-full"
                         >
-                            <Send size={16} />
-                        </button>
-                    </div>
+                            <div className="flex-grow flex items-center gap-3 bg-brand-accent/5 border border-brand-accent/20 rounded-xl px-4 py-2">
+                                <button
+                                    type="button"
+                                    onClick={togglePreviewPlayback}
+                                    className="w-9 h-9 flex items-center justify-center bg-brand-accent text-brand-dark rounded-full shadow-emerald-glow"
+                                >
+                                    {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" translate="1" />}
+                                </button>
+                                <div className="flex-grow">
+                                    <div className="text-[10px] text-brand-accent font-black uppercase tracking-widest">Preview da voz</div>
+                                    <div className="text-[9px] text-white/40 truncate">Pronto para enviar</div>
+                                </div>
+                                <audio
+                                    ref={audioRef}
+                                    src={audioPreviewUrl}
+                                    onEnded={() => setIsPlaying(false)}
+                                    className="hidden"
+                                />
+                            </div>
 
-                    {!isFinished && (
-                        <motion.button
-                            type="button"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={isRecording ? stopRecording : startRecording}
-                            disabled={isTyping}
-                            className={`p-3.5 rounded-xl flex items-center justify-center transition-all shadow-lg ${isRecording
-                                ? 'bg-red-500 text-white animate-pulse shadow-red-500/20'
-                                : 'bg-brand-accent/10 border border-brand-accent/20 text-brand-accent hover:bg-brand-accent/20 shadow-emerald-glow'
-                                } disabled:opacity-50`}
+                            <button
+                                type="button"
+                                onClick={discardAudio}
+                                className="p-3.5 bg-white/5 border border-white/10 text-white/60 rounded-xl hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-500 transition-all"
+                                title="Descartar"
+                            >
+                                <Trash2 size={16} />
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={confirmAudio}
+                                className="p-3.5 bg-brand-accent text-brand-dark rounded-xl shadow-emerald-glow hover:scale-105 transition-transform"
+                                title="Enviar para IA"
+                            >
+                                <CheckCircle size={16} />
+                            </button>
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="normal-input"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="relative flex items-center gap-2 w-full"
                         >
-                            {isRecording ? <Square size={16} fill="currentColor" /> : <Mic size={16} />}
-                        </motion.button>
+                            <div className="relative flex-grow flex items-center">
+                                <input
+                                    type="text"
+                                    value={inputValue}
+                                    onChange={(e) => setInputValue(e.target.value)}
+                                    placeholder={isFinished ? "Consultoria Finalizada" : (isRecording ? "Gravando áudio..." : "Diga algo para a IA...")}
+                                    disabled={isFinished || isTyping || isRecording}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-5 pr-14 text-[13px] focus:outline-none focus:border-brand-accent/50 transition-colors disabled:opacity-50 text-white"
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={!inputValue.trim() || isTyping || isFinished || isRecording}
+                                    className="absolute right-2 p-2.5 bg-brand-accent text-brand-dark rounded-lg hover:scale-105 transition-transform disabled:opacity-50 disabled:hover:scale-100"
+                                >
+                                    <Send size={16} />
+                                </button>
+                            </div>
+
+                            {!isFinished && (
+                                <motion.button
+                                    type="button"
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={isRecording ? stopRecording : startRecording}
+                                    disabled={isTyping}
+                                    className={`p-3.5 rounded-xl flex items-center justify-center transition-all shadow-lg ${isRecording
+                                        ? 'bg-red-500 text-white animate-pulse shadow-red-500/20'
+                                        : 'bg-brand-accent/10 border border-brand-accent/20 text-brand-accent hover:bg-brand-accent/20 shadow-emerald-glow'
+                                        } disabled:opacity-50`}
+                                >
+                                    {isRecording ? <Square size={16} fill="currentColor" /> : <Mic size={16} />}
+                                </motion.button>
+                            )}
+                        </motion.div>
                     )}
-                </div>
+                </AnimatePresence>
             </form>
         </div>
     );
