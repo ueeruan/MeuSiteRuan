@@ -31,7 +31,10 @@ const pluginsData = [
     { id: 9, title: "Boris FX Continuum", description: "The world's most complete plugin collection.", icon: Zap, link: "https://www.mediafire.com/file/wgs28vczpa8ayuj/Boris+FX+Continuum+Plugi-ins+2024.5+V17.5.1.1404+(WIN).zip/file", tags: ["Suite", "Pro"], category: "VFX" },
     { id: 10, title: "RSMB", description: "ReelSmart Motion Blur - Natural motion blur generator.", icon: Zap, link: "https://www.mediafire.com/file/3fvnihrbgsvzyi7/RSMB_%282%29.zip/file", tags: ["Blur", "Motion"], category: "Utility" },
     { id: 11, title: "Element 3D v2.2", description: "High-performance 3D particle based object engine.", icon: Package, link: "https://www.mediafire.com/file/go0d2s1phvtbw94/Element3D2.2.3.2192.zip/file", tags: ["3D", "Render"], category: "3D" },
-    { id: 12, title: "Deep Glow", description: "Physically accurate glow generator.", icon: Zap, link: "https://www.mediafire.com/file/3q59b7w15sd1snp/Deep-Glow-v1.6-(WIN).zip/file", tags: ["Glow", "Lighting"], category: "Stylize" }
+    { id: 12, title: "Deep Glow", description: "Physically accurate glow generator.", icon: Zap, link: "https://www.mediafire.com/file/3q59b7w15sd1snp/Deep-Glow-v1.6-(WIN).zip/file", tags: ["Glow", "Lighting"], category: "Stylize" },
+    { id: 13, title: "Flow", description: "The best graph editor for After Effects. Build smooth animations instantly.", icon: Zap, link: "https://drive.google.com/file/d/1IXgJEuLGtVCOU1tdEpNpZbngkNc3QgoI/view", tags: ["Graph", "Curve"], category: "Animation" },
+    { id: 14, title: "Ez Tools", description: "Essential workflow scripts and utilities collection.", icon: Package, link: "https://drive.google.com/drive/folders/11W6pbMHN5iTYMIQDtjA3Yyqtq-gRG9Yt", tags: ["Suite", "Utils"], category: "Productivity" },
+    { id: 15, title: "Sapphire 2024", description: "High-end visual effects suite. Lens flares, glows, and distortions.", icon: Zap, link: "https://www.mediafire.com/file/0syhcq27o2j2ads/Sapphire+2024.zip/file", tags: ["VFX", "Pro"], category: "Effects" }
 ];
 
 const softwareData = [
