@@ -9,6 +9,8 @@ import Navbar from './components/Navbar';
 import Background from './components/Background';
 import Lenis from 'lenis';
 
+import DownloadsPage from './components/DownloadsPage';
+
 const AnimatedRoutes = () => {
   const location = useLocation();
 
@@ -17,6 +19,7 @@ const AnimatedRoutes = () => {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Home />} />
         <Route path="/servicos" element={<ServicesPage />} />
+        <Route path="/downloads" element={<DownloadsPage />} />
         <Route path="/contato" element={<ContactPage />} />
         <Route path="/feedback" element={<Feedback />} />
       </Routes>
