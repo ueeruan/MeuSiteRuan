@@ -158,6 +158,8 @@ const ProposalChat = () => {
         const shouldFinalize =
             lowerInput.includes('falar com o ruan') ||
             lowerInput.includes('falar com ruan') ||
+            lowerInput.includes('falar com o juan') ||
+            lowerInput.includes('falar com juan') ||
             lowerInput.includes('finalizar') ||
             lowerInput.includes('concluir') ||
             lowerInput.includes('fechar');
