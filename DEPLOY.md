@@ -76,6 +76,7 @@ Agora vamos "empacotar" seu site para enviar. No mesmo terminal, digite:
 2. O GitHub vai te mostrar uma página cheia de códigos. Procure a parte que diz **"…or push an existing repository from the command line"**.
 
 3. Copie o comando que começa com `git remote add origin...` e cole no seu terminal:
+   *(Se der erro **"remote origin already exists"**, rode esse comando antes: `git remote remove origin` e tente de novo)*
    ```bash
    git remote add origin https://github.com/SEU_USUARIO/ruanzitwo-site.git
    ```
@@ -104,5 +105,37 @@ Se aparecer uma mensagem dizendo "Branch 'main' set up to track...", SUCESSO! �
 
 ---
 
+## 🔄 Como Atualizar o Site
+
+Sempre que você (ou eu) fizer alguma alteração no código, o site **NÃO** atualiza sozinho magicamente. Você precisa enviar as mudanças para o GitHub. A Vercel vai ver que o GitHub mudou e atualizar o site automaticamente.
+
+**Passo a Passo para Atualizar:**
+
+1. Faça as alterações no código.
+2. Abra o terminal e rode estes 3 comandos:
+
+```bash
+git add .
+git commit -m "Atualização do site"
+git push
+```
+
+3. Pronto! Em cerca de 1 minuto, a Vercel atualiza o site no ar.
+
+---
+
 ### 🆘 Deu erro?
 Se algum comando der erro, copie o erro e me mande aqui no chat que eu te ajudo a resolver!
+
+---
+
+## 🛠️ Correção do Erro 404 (Página não encontrada)
+
+Se você clicar em "Em desenvolvimento" e der erro, é porque precisamos avisar a Vercel que o site é um aplicativo único.
+Já criei o arquivo de correção (`vercel.json`). Para aplicar, basta atualizar o site:
+
+```bash
+git add .
+git commit -m "Correção erro 404"
+git push
+```
