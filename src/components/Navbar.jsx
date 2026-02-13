@@ -19,6 +19,17 @@ const Navbar = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    useEffect(() => {
+        if (isMobileMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isMobileMenuOpen]);
+
     const navLinks = [
         { name: 'Início', href: '#home' },
         { name: 'Sobre', href: '#about' },
@@ -109,9 +120,9 @@ const Navbar = () => {
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: '100%' }}
                             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                            className="fixed inset-0 bg-[#020617] flex flex-col items-center justify-center gap-10 md:hidden z-[100]"
+                            className="fixed inset-0 bg-brand-dark flex flex-col items-center justify-start pt-32 gap-6 md:hidden z-[100] overflow-y-auto"
                         >
-                            <div className="flex flex-col items-center gap-8 w-full px-6">
+                            <div className="flex flex-col items-center gap-6 w-full px-6 pb-12">
                                 {navLinks.map((link, index) => (
                                     <motion.a
                                         key={link.name}
@@ -121,10 +132,10 @@ const Navbar = () => {
                                         transition={{ delay: 0.1 + index * 0.05 }}
                                         target={link.isNewTab ? "_blank" : "_self"}
                                         rel={link.isNewTab ? "noopener noreferrer" : ""}
-                                        className={`text-2xl font-bold tracking-tight text-center py-2 w-full transition-all active:scale-95 ${link.isSpecial
-                                            ? "text-brand-accent bg-brand-accent/10 rounded-xl"
+                                        className={`text-xl font-bold tracking-tight text-center py-3 w-full transition-all active:scale-95 border-b border-white/5 last:border-0 ${link.isSpecial
+                                            ? "text-brand-accent bg-brand-accent/10 rounded-xl py-4 border-0"
                                             : "text-white/90 hover:text-white"
-                                            } ${link.isNewTab ? "text-lg text-brand-accent/60 italic underline decoration-brand-accent/30" : ""}`}
+                                            } ${link.isNewTab ? "text-base text-brand-accent/60 italic underline decoration-brand-accent/30" : ""}`}
                                         onClick={(e) => !link.isNewTab && handleNavClick(e, link.href)}
                                     >
                                         {link.name}
