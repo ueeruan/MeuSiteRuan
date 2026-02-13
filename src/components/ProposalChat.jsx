@@ -1,14 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getAIResponse } from '../services/ai';
-import { Send, User, MessageSquare, Clock, Calendar, CheckCircle, Sparkles, Tag, Terminal } from 'lucide-react';
+import { getAIResponse, transcribeAudio } from '../services/ai';
+import { Send, User, MessageSquare, Clock, Calendar, CheckCircle, Sparkles, Tag, Terminal, Mic, Square } from 'lucide-react';
 
 const ProposalChat = () => {
     const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const [isFinished, setIsFinished] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
     const chatEndRef = useRef(null);
+    const mediaRecorderRef = useRef(null);
+    const audioChunksRef = useRef([]);
 
     const scrollToBottom = () => {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -24,11 +27,72 @@ const ProposalChat = () => {
 
     const initChat = async () => {
         setIsTyping(true);
-        const welcome = "Olá! Eu sou o Assistente Virtual do RuanziTwo. Estou aqui para te ajudar a montar a proposta perfeita para seus vídeos. Como posso te chamar?";
+        const welcome = "Olá! Eu sou o Assistente Virtual do RuanziTwo. Estou aqui para te ajudar a montar a proposta perfeita para seus vídeos. Como posso te chamar? (Você também pode mandar um áudio clicando no microfone! 🎙️)";
         setTimeout(() => {
             setMessages([{ role: 'assistant', content: welcome, id: Date.now() }]);
             setIsTyping(false);
         }, 1000);
+    };
+
+    const startRecording = async () => {
+        try {
+            console.log("Iniciando gravação...");
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+            // Detect supported MIME type
+            const mimeType = MediaRecorder.isTypeSupported('audio/webm')
+                ? 'audio/webm'
+                : 'audio/ogg';
+
+            console.log("MIME Type selecionado:", mimeType);
+            mediaRecorderRef.current = new MediaRecorder(stream, { mimeType });
+            audioChunksRef.current = [];
+
+            mediaRecorderRef.current.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    audioChunksRef.current.push(event.data);
+                }
+            };
+
+            mediaRecorderRef.current.onstop = async () => {
+                const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+                console.log("Gravação finalizada. Blob criado:", audioBlob.size, "bytes");
+
+                if (audioBlob.size < 100) {
+                    console.warn("Áudio muito curto ou vazio.");
+                    setMessages(prev => [...prev, { role: 'assistant', content: "Parece que o áudio ficou muito curto ou vazio. Pode tentar segurar o botão por mais tempo?", id: Date.now() }]);
+                    setIsTyping(false);
+                    return;
+                }
+
+                setIsTyping(true);
+                // Groq expects a proper extension. webm/ogg work fine.
+                const extension = mimeType.split('/')[1];
+                const transcription = await transcribeAudio(audioBlob, extension);
+
+                if (transcription) {
+                    handleSend(transcription);
+                } else {
+                    setMessages(prev => [...prev, { role: 'assistant', content: "Não consegui processar seu áudio. Pode tentar escrever ou mandar outro?", id: Date.now() }]);
+                    setIsTyping(false);
+                }
+            };
+
+            // Request data every second just in case
+            mediaRecorderRef.current.start(1000);
+            setIsRecording(true);
+        } catch (err) {
+            console.error("Erro ao acessar microfone:", err);
+            alert("Não foi possível acessar seu microfone. Verifique as permissões do navegador.");
+        }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorderRef.current && isRecording) {
+            mediaRecorderRef.current.stop();
+            setIsRecording(false);
+            mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+        }
     };
 
     const handleSend = async (text) => {
@@ -164,22 +228,40 @@ const ProposalChat = () => {
 
             {/* Input Area */}
             <form onSubmit={(e) => { e.preventDefault(); handleSend(inputValue); }} className="p-4 bg-black/40 border-t border-white/5">
-                <div className="relative flex items-center">
-                    <input
-                        type="text"
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        placeholder={isFinished ? "Consultoria Finalizada" : "Diga algo para a IA..."}
-                        disabled={isFinished || isTyping}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-5 pr-14 text-[13px] focus:outline-none focus:border-brand-accent/50 transition-colors disabled:opacity-50 text-white"
-                    />
-                    <button
-                        type="submit"
-                        disabled={!inputValue.trim() || isTyping || isFinished}
-                        className="absolute right-2 p-2.5 bg-brand-accent text-brand-dark rounded-lg hover:scale-105 transition-transform disabled:opacity-50 disabled:hover:scale-100"
-                    >
-                        <Send size={16} />
-                    </button>
+                <div className="relative flex items-center gap-2">
+                    <div className="relative flex-grow flex items-center">
+                        <input
+                            type="text"
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            placeholder={isFinished ? "Consultoria Finalizada" : (isRecording ? "Gravando áudio..." : "Diga algo para a IA...")}
+                            disabled={isFinished || isTyping || isRecording}
+                            className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-5 pr-14 text-[13px] focus:outline-none focus:border-brand-accent/50 transition-colors disabled:opacity-50 text-white"
+                        />
+                        <button
+                            type="submit"
+                            disabled={!inputValue.trim() || isTyping || isFinished || isRecording}
+                            className="absolute right-2 p-2.5 bg-brand-accent text-brand-dark rounded-lg hover:scale-105 transition-transform disabled:opacity-50 disabled:hover:scale-100"
+                        >
+                            <Send size={16} />
+                        </button>
+                    </div>
+
+                    {!isFinished && (
+                        <motion.button
+                            type="button"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={isRecording ? stopRecording : startRecording}
+                            disabled={isTyping}
+                            className={`p-3.5 rounded-xl flex items-center justify-center transition-all shadow-lg ${isRecording
+                                ? 'bg-red-500 text-white animate-pulse shadow-red-500/20'
+                                : 'bg-brand-accent/10 border border-brand-accent/20 text-brand-accent hover:bg-brand-accent/20 shadow-emerald-glow'
+                                } disabled:opacity-50`}
+                        >
+                            {isRecording ? <Square size={16} fill="currentColor" /> : <Mic size={16} />}
+                        </motion.button>
+                    )}
                 </div>
             </form>
         </div>

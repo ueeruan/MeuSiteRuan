@@ -50,3 +50,31 @@ export const getAIResponse = async (messages) => {
         return "Desculpe, tive um pequeno problema técnico. Posso te ajudar com algo mais ou você prefere falar direto no WhatsApp?";
     }
 };
+
+export const transcribeAudio = async (audioBlob, extension = 'm4a') => {
+    try {
+        const formData = new FormData();
+        formData.append('file', audioBlob, `recording.${extension}`);
+        formData.append('model', 'whisper-large-v3-turbo');
+        formData.append('response_format', 'json');
+        formData.append('language', 'pt');
+
+        const response = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${GROQ_API_KEY}`
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Groq Whisper Error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data.text;
+    } catch (error) {
+        console.error("Error transcribing audio:", error);
+        return null;
+    }
+};
