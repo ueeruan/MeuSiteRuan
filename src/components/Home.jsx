@@ -7,12 +7,10 @@ import Pricing from './Pricing';
 import Contact from './Contact';
 import Footer from './Footer';
 import Background from './Background';
-import WelcomePopup from './WelcomePopup';
 
 const Home = () => {
     return (
         <div className="bg-brand-dark min-h-screen text-white relative">
-            <WelcomePopup />
             <Background />
             <Navbar />
             <Hero />
