@@ -20,17 +20,9 @@ INSTRUÇÕES:
 
 export const getAIResponse = async (messages) => {
     try {
-        const isVercel = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-        const API_ENDPOINT = isVercel ? '/api/chat' : API_URL;
-
-        const headers = { 'Content-Type': 'application/json' };
-        if (!isVercel) {
-            headers['Authorization'] = `Bearer ${GROQ_API_KEY}`;
-        }
-
-        const response = await fetch(API_ENDPOINT, {
+        const response = await fetch('/api/chat', {
             method: 'POST',
-            headers: headers,
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 messages: [
                     { role: "system", content: SYSTEM_PROMPT },
@@ -45,7 +37,6 @@ export const getAIResponse = async (messages) => {
         }
 
         const data = await response.json();
-        // The SDK format returns choices[0].message.content or we handle the direct text
         return data.choices[0].message.content;
     } catch (error) {
         console.error("Error fetching AI response:", error);
