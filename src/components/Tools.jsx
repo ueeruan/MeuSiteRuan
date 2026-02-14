@@ -1,6 +1,6 @@
 import RevealOnScroll from './RevealOnScroll';
 import { motion } from 'framer-motion';
-import { Download, Package, Zap, Disc, Mic } from 'lucide-react';
+import { Download, Package, Zap, Disc, Mic, MessageCircle } from 'lucide-react';
 
 const pluginsData = [
     {
@@ -8,9 +8,18 @@ const pluginsData = [
         title: "MultiTools v0.1",
         description: "Potencialize seu workflow no After Effects e Premiere Pro com esta extensão exclusiva. Automação, presets e utilitários em um só lugar.",
         icon: Package,
-        link: "https://drive.google.com/file/d/1Yd_RFTDwyhMnzIkIdDkmu2z662ntfjC_/view?usp=drive_link",
+        link: "https://drive.google.com/file/d/19AArFib1rGOXeAgKoRjHtVvgiI10N_CD/view?usp=sharing",
         tags: ["Beta", "v0.1"],
         category: "Productivity"
+    },
+    {
+        id: 2,
+        title: "AppleEasyMessage",
+        description: "Crie animações de mensagens estilo iOS/Apple em segundos. Personalize cores, textos e emojis com facilidade diretamente no After Effects.",
+        icon: MessageCircle,
+        link: "https://drive.google.com/file/d/1NDeZCK28DM71OQT_sabBMwJr1phthHAy/view?usp=sharing",
+        tags: ["Plugin", "Free"],
+        category: "Animation"
     }
 ];
 
